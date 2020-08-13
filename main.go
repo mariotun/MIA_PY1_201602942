@@ -9,6 +9,7 @@ import(
 
 	//"./comandos"
 	"./funciones"
+	"./lexico"
 )
 
 func main()  {
@@ -32,6 +33,8 @@ func main()  {
 
 		//funciones.LineaComando(eleccion)
 		funciones.LeerArchivoEntrada(eleccion)
+
+		lexico.Alexico()
 
 		/*switch eleccion {
 			
