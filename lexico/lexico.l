@@ -12,11 +12,22 @@ import (
 	"fmt"
 	"go/token"
 	"unicode"
-	"fmt"
 	
-
+	
+	"container/list"
 	"modernc.org/golex/lex"
 )
+
+ //var LValores = list.New()
+
+  	
+
+type ParametrosC struct {
+    nombre string
+    ruta   string
+}
+
+
 
 // Allocate Character classes anywhere in [0x80, 0xFF].
 const (
@@ -30,7 +41,6 @@ const (
 	FUNC = iota + 0xE002
 	INT
     NEG
-	IDENT
 	dir
 	
 
@@ -38,17 +48,20 @@ const (
     DIAGONAL = iota + 0xE002
 	
 	concatenar
+	comentario
+	identificador
 
 //---------------------------------------------	
 	exec
 	pathh
 	direccion
+	direccomi
 	flecha
 	pause
 //----------------------------------------------
 	mkdisk
 	archivo
-
+	name
 
 	rmdisk
 	fdisk
@@ -71,8 +84,6 @@ func str(r rune) string {
 		return "FUNC"
 	case INT:
 		return "INT"
-	case IDENT:
-		return "IDENT"
     case VARI:
 		return "VARI"
     case NEG:
@@ -83,32 +94,40 @@ func str(r rune) string {
 		return "dir"
 	case direccion:
 		return "direccion"
+	case direccomi:
+		return "direccomi"
 	case flecha:
 		return "flecha"
 	case archivo:
 		return "archivo"
+	case comentario:
+		return "comentario"
+	case identificador:
+		return "identificador"
+	case concatenar:
+		return "concatenar"
 
 	case exec:
-		return "Reservada"
+		return "exec"
 	case pause:
-		return "Reservada"
-
+		return "pause"
 	case mkdisk:
-		return "Reservada"
+		return "mkdisk"
 	case rmdisk:
-		return "Reservada"
+		return "rmdisk"
     case fdisk:
-		return "Reservada"
+		return "fdisk"
     case mount:
-		return "Reservada"
+		return "mount"
     case unmount:
-		return "Reservada"
+		return "unmount"
 
 	case sizee:
 		return "size"
 	case pathh:
 		return "path"
-
+	case name:
+		return "name"
 
 
 	case lex.RuneEOF:
@@ -145,39 +164,11 @@ func rune2Class(r rune) int {
 	return classOther
 }
 
-/* φ
-
-func X42() int { return 314 }
-func saludo () {
-    fmt.Println("hola guatemala")
-}
-
-mkdisk
-vari=-56*/
-
-
-
-const src = `
-mkdisk
-/Escritorio/entrada.txt
-/home/Desktop/calificacion.mia
-pause
-tonto
--size
--path
-exec-path->/home/Desktop/calificacion.mia
-entrada.sdk
-
-`
-
-func Alexico() { // main
-
-	
-
+func Alexico(entrada string) int{ 
 
 	fset := token.NewFileSet()
-	file := fset.AddFile("example.go", -1, len(src))
-	src := bytes.NewBufferString(src)
+	file := fset.AddFile("example.go", -1, len(entrada))
+	src := bytes.NewBufferString(entrada)
 	lx, err := lex.New(file, src, lex.RuneClass(rune2Class))
 	if err != nil {
 		panic(err)
@@ -185,32 +176,35 @@ func Alexico() { // main
 
 	l := &lexer{lx}
 
+	LValores := list.New()
+	//LValores := New()
+
 	for {
 		c := l.scan()
-		fmt.Printf("%v --> %s\n", str(c.Rune), l.TokenBytes(nil))
+		//fmt.Printf("%v --> %s\n", str(c.Rune), l.TokenBytes(nil))
+
+		//LValores.PushBack(str(c.Rune)) 
+		LValores.PushBack(string(l.TokenBytes(nil)))
 		
 		if str(c.Rune)=="Error"{
-
-			return 
+			fmt.Printf("%v --> %s\n", str(c.Rune), l.TokenBytes(nil))
+			return 1
 			
 			}
 		
 		if c.Rune == lex.RuneEOF {
-			return
+	
+			/*for temp := LValores.Front(); temp != nil; temp = temp.Next() {
+        fmt.Println(">>>>>",temp.Value)
+    			}*/
+		
+
+			return 0
 		}
 		
 	}
-	// Output:
-	// example.go:3:1: FUNC "func"
-	// example.go:3:6: IDENT "Xφ42"
-	// example.go:3:11: '(' "("
-	// example.go:3:12: ')' ")"
-	// example.go:3:14: IDENT "int"
-	// example.go:3:18: '{' "{"
-	// example.go:3:20: IDENT "return"
-	// example.go:3:27: INT "314"
-	// example.go:3:31: '}' "}"
-	// example.go:4:2: EOF "\xff"
+
+
 }
 
 
@@ -218,16 +212,16 @@ func (l *lexer) scan() lex.Char {
 	c := l.Enter()
 %}
 
-digit		[0-9]|{unicodeDigit}
-identifier	{letter}({letter}|{digit})* 
-int		[0-9]+
-negativo "-"+{int}
-dir "/"+{identifier}
-archivo {identifier}+"."{identifier}
-nom "/"+{identifier}+"."{identifier}
-direccion  {dir}({dir}|{nom})*
-
-
+digit			[0-9]|{unicodeDigit}
+identifier		{letter}({letter}|{digit})* 
+int				[0-9]+
+negativo 		"-"+{int}
+dir 			"/"+{identifier}
+archivo 		{identifier}+"."{identifier}
+nom				"/"+{identifier}+"."{identifier}
+direccion		{dir}({dir}|{nom})* 
+direccomi		"\""+[^\n]+"\""
+comentario		"#"[^\n]*			 
 letter		    [_a-zA-Z]
 unicodeDigit	\x81
 unicodeLetter	\x80
@@ -239,10 +233,7 @@ unicodeLetter	\x80
 
 [ \t\r\n]+
 
-func			return l.char(FUNC)
-vari        	return l.char(VARI)
-     
-exec			return l.char(exec)
+exec			{ /*LValores.PushFront("exec") ;*/ return l.char(exec) }
 mkdisk			return l.char(mkdisk)
 rmdisk			return l.char(rmdisk)	
 fdisk			return l.char(fdisk)
@@ -250,27 +241,28 @@ mount			return l.char(mount)
 unmount			return l.char(unmount)
 
 pause       	return l.char(pause)
--size			return l.char(sizee)
--path			return l.char(pathh)
+size			return l.char(sizee)
+path			{ /*LValores.PushFront("path") ;*/ return l.char(pathh)  }
+name			return l.char(name)
 
 "/"         	return l.char(DIAGONAL)
 "->"	    	return l.char(flecha)
 "\*"			return l.char(concatenar)
+"-"				{ }
 
-{identifier}	return l.char(IDENT)
+
 {int}			return l.char(INT)
 {negativo}  	return l.char(NEG)
 {dir} 			return l.char(dir)
 {archivo}		return l.char(archivo)   
 {direccion}		return l.char(direccion)
+{direccomi}		return l.char(direccomi)
+{comentario}	return l.char(comentario)
+{identifier}	return l.char(identificador)
 
 
 %%
 
-
-	if c, ok := l.Abort(); ok {
-		return l.char(c)
-	}
-
+	if c, ok := l.Abort(); ok { return l.char(c) }
 	goto yyAction
 }

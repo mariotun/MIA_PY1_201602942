@@ -7,5 +7,5 @@ import(
 
 func RMDISK(){
 
-	fmt.Println("comando rmdisk")
+	fmt.Println("Dentro de la funcion rmdisk")
 }

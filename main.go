@@ -5,11 +5,11 @@ import(
 	"strings"
 	"bufio"
 	"os"
-	//"os/exec"
+	"os/exec"
 
 	//"./comandos"
 	"./funciones"
-	"./lexico"
+	//"./lexico"
 )
 
 func main()  {
@@ -32,18 +32,18 @@ func main()  {
 		eleccion:= strings.TrimRight(entrada,"\r\n")//remover el salto de linea de ...
 
 		//funciones.LineaComando(eleccion)
-		funciones.LeerArchivoEntrada(eleccion)
+		//funciones.LeerArchivoEntrada(eleccion)
 
-		lexico.Alexico()
+		//lexico.Alexico()
 
-		/*switch eleccion {
+		switch eleccion {
 			
-			case "1":
+		/*	case "1":
 				fmt.Println("es la opcion 1")
-				comandos.MKDISK()
+				//comandos.MKDISK()
 			case "2":
 				fmt.Println("es la opcion 2")
-				comandos.RMDISK()
+				//comandos.RMDISK()*/
 			case "exit":
 				salida=0
 			case "clear":
@@ -51,16 +51,11 @@ func main()  {
 				c.Stdout = os.Stdout 
 				c.Run()
 			default:
-				fmt.Println("Comando incorrecta!!! ")
-		
-			
-		}*/
-salida=0
+				//fmt.Println("Comando incorrecta!!! ")
+				
+				funciones.LeerEntrada2(strings.ToLower(eleccion))
+		}
+
 	}
-
-
-	
-
-
 
 }

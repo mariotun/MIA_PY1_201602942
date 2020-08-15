@@ -6,6 +6,9 @@ import(
 	"strings"
 	"os"
 	"bufio"
+	"../lexico"
+	"../comandos"
+	//"regexp"
 )
 
 func LineaComando(comando string) {
@@ -34,12 +37,64 @@ func LeerArchivoEntrada(ruta string){
 	}
 
 	scanner:=bufio.NewScanner(archivo)
-	
+	//scanner.Split(bufio.ScanWords)
 	
 	for scanner.Scan(){
 		i++
+
+		//re := regexp.MustCompile(`[- ->]`)
+
+
 		linea:=scanner.Text()
-		fmt.Println(i,linea)
+		split := strings.Split(linea, "-")
+		//res:=re.Split(linea, -1)
+		fmt.Println(i,split)
+		//fmt.Println(i,res)
 	}
 
+}
+
+
+func LeerEntrada2(entrada string)  {
+
+	estado:=lexico.Alexico(entrada)
+
+	if estado==1{
+		fmt.Println("	Error: Comando no reconocido totalmente.")
+
+	}else if estado ==0{
+
+		//fmt.Println("	Comando escrito correctamente.")
+		ElegirComando2(entrada)
+	}
+
+
+}
+
+func ElegirComando2(comando string)  {
+
+
+	//componentes := strings.Split(comando, "-","->")
+
+	//fmt.Println(componentes)
+	var comandoArray []string
+	comandoArray = strings.Split(comando, "-")
+	
+
+	if comandoArray[0]=="exec"{
+		
+		comandos.Exec("/home/mario/Escritorio/entrada.txt")
+
+	}else {
+
+		comandos.ElegirComando(comandoArray[0])
+	}
+	
+	
+	
+	
+	
+
+
+	
 }

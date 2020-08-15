@@ -8,5 +8,5 @@ import(
 
 func MKDISK(){
 
-	fmt.Println("comando mkdisk")
+	fmt.Println("Dentro de la funcion mkdisk")
 }
