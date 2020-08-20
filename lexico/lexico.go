@@ -7,17 +7,24 @@ import (
 	"fmt"
 	"go/token"
 	"unicode"
+	//"strconv"
 
 	"container/list"
 	"modernc.org/golex/lex"
 )
 
-//var LValores = list.New()
+var LValores *list.List
 
-type ParametrosC struct {
-	nombre string
-	ruta   string
+//var list0 *list.List
+
+/*
+type ParamComandos struct {
+    nombre string
+    ruta   string
 }
+
+var parametros ParamComandos
+*/
 
 // Allocate Character classes anywhere in [0x80, 0xFF].
 const (
@@ -39,10 +46,10 @@ const (
 	concatenar
 	comentario
 	identificador
-
+	espacio
 	//---------------------------------------------
 	exec
-	pathh
+	path
 	direccion
 	direccomi
 	flecha
@@ -111,7 +118,7 @@ func str(r rune) string {
 
 	case sizee:
 		return "size"
-	case pathh:
+	case path:
 		return "path"
 	case name:
 		return "name"
@@ -162,7 +169,7 @@ func Alexico(entrada string) int {
 
 	l := &lexer{lx}
 
-	LValores := list.New()
+	LValores = list.New()
 	//LValores := New()
 
 	for {
@@ -190,6 +197,12 @@ func Alexico(entrada string) int {
 	}
 
 }
+
+/*
+func Datos(dat ParamComandos)struct{
+	return dat
+}
+*/
 
 func (l *lexer) scan() lex.Char {
 	c := l.Enter()
@@ -1259,10 +1272,10 @@ yyrule9: // size
 	{
 		return l.char(sizee)
 	}
-yyrule10: // path
+yyrule10: // "path"
 	{
-		{ /*LValores.PushFront("path") ;*/
-			return l.char(pathh)
+		{ /*LValores.PushFront(l.TokenBytes(nil)) ;*/
+			return l.char(path)
 		}
 		goto yystate0
 	}

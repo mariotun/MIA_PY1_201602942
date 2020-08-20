@@ -77,24 +77,36 @@ func ElegirComando2(comando string)  {
 	//componentes := strings.Split(comando, "-","->")
 
 	//fmt.Println(componentes)
+
+	
 	var comandoArray []string
-	comandoArray = strings.Split(comando, "-")
+	//comandoArray = strings.Split(comando, "-")
+	f2 := func(c rune) bool {
+		return c == '-' || c == '>' || c=='\t' ||c=='\r' || c=='\n' || c==' '
+		}
+		// Separate into fields with func.
+		fields2 := strings.FieldsFunc(comando, f2)
+
 	
 
-	if comandoArray[0]=="exec"{
+	if fields2[0]=="exec"{
+
+		f := func(c rune) bool {
+			return c == '-' || c == '>' || c=='\t' ||c=='\r' || c=='\n' || c==' '
+			}
+			// Separate into fields with func.
+			fields := strings.FieldsFunc(comando, f)
+			fmt.Println(fields[2])
 		
-		comandos.Exec("/home/mario/Escritorio/entrada.txt")
+		//direccion:=comandoArray[2]
+
+		comandos.Exec(fields[2])
+		
 
 	}else {
 
 		comandos.ElegirComando(comandoArray[0])
 	}
 	
-	
-	
-	
-	
-
-
 	
 }

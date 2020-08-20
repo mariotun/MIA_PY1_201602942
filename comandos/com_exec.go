@@ -3,6 +3,7 @@ package comandos
 import(
 	"fmt"
 	"os"
+	//"os/exec"
 	"bufio"
 	"strings"
 	"../lexico"
@@ -14,6 +15,7 @@ func Exec(ruta string)  {
 	i:=0
 	archivo,error:=os.Open(ruta)
 
+	fmt.Println("iiiii"+ruta)
 	if error!=nil{
 		fmt.Println("Hubo un error al leer el archivo")
 	}
@@ -59,12 +61,16 @@ func ElegirComando(entrada string)  {
 		fmt.Println("El exec con los demas comandos")
 
 	}else */
+	if comandoArray[0]=="#"{
+		fmt.Println("es un comentario")
+	}
 	if comandoArray[0]=="mkdisk"{
 		//fmt.Println("Dentro de opcion mkdisk")
 		MKDISK()
 
 	}else if comandoArray[0]=="pause"{
-		fmt.Println("Dentro de opcion pause")
+		fmt.Println("	Presione enter para continuar!!")
+		bufio.NewReader(os.Stdin).ReadBytes('\n') 
 		
 
 	}else if comandoArray[0]=="rmdisk"{

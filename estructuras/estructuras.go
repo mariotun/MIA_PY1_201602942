@@ -3,7 +3,7 @@ package estructuras
 
 
 type ExecStr struct { 
-	path [1000]byte
+	path string
     hpath int64
 }
 
@@ -23,19 +23,57 @@ type RmdiskStr struct{
 
 
 type FdiskStr struct{
-	size int64;
-    unit [10]byte;
-    path [1000]byte;
-    typee [10]byte;
-    fit [10]byte;
-    Delete [10]byte;
-    name [50]byte;
-    add int64;
+	size int64
+    unit [10]byte
+    path [1000]byte
+    typee [10]byte
+    fit [10]byte
+    Delete [10]byte
+    name [50]byte
+    add int64
     hsize, hfit, hunit,hpath,htype,hdelete,hname,hadd int64
-
 }
 
 type MountStr struct{
-    
+    path [1000]byte
+    name [45]byte
+    hname, hpath int64
 }
 
+type UnmountStr struct{
+    id [1000]byte
+    hid int64
+}
+
+type MbrStr struct {
+    mbr_size int64 //Tamano total del disco en bytes
+    mbr_date_created [100]byte  //Fecha y hora de creacion del disco
+    mbr_disk_signature int64 //Numero random, que identifica de forma unica cada disco
+    mbr_disk_fit [100] byte //Tipo de ajuste
+    mbr_partition [4]Partition //4 particiones
+}
+
+type Partition struct{
+    part_status [100]byte //Indica si la particion esta activa o no
+    part_type [100]byte //Indica el tipo de particion
+    part_fit [100]byte //Tipo de ajuste de la particion
+    part_start int64 //Indica en que byte del disco inicia la particion
+    part_size int64 //Contiene el tamano de la particion en bytes
+    part_name [16]byte //Nombre de la particion
+}
+
+type EbrStr struct{
+    part_status [30]byte //Indica si la particion esta activa o no
+    part_fit [50]byte //Tipo de ajuste
+    part_start int64 //Indica en que byte del disco inicia la particion
+    part_size int64 //Contiene el tamano total de la particion en bytes
+    part_next int64 //Byte en el que esta el proxima EBR. -1 si no hay siguiente
+    part_name [16]byte //Nombre de la particion 
+}
+ 
+type RepStr struct{
+    name [45]byte
+    path [1000]byte
+    id [8]byte
+    hname, hpath, hid int64
+}

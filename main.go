@@ -9,6 +9,7 @@ import(
 
 	//"./comandos"
 	"./funciones"
+	
 	//"./lexico"
 )
 
@@ -19,7 +20,7 @@ func main()  {
 	encabezado:=`
 	-----------------------------------------		
 	 UNIVERSIDAD DE SAN CARLOS DE GUATEMALA
-	 FACULTAD DE INGENIERA
+	 FACULTAD DE INGENIERIA
 	 MANEJO E IMPLEMENTACION DE ARCHIVOS
 	 MARIO TUN - 201602942
 	-----------------------------------------
@@ -44,6 +45,8 @@ func main()  {
 			case "2":
 				fmt.Println("es la opcion 2")
 				//comandos.RMDISK()*/
+			case "1":
+				funciones.Ejecutar()
 			case "exit":
 				salida=0
 			case "clear":
@@ -52,8 +55,8 @@ func main()  {
 				c.Run()
 			default:
 				//fmt.Println("Comando incorrecta!!! ")
-				
-				funciones.LeerEntrada2(strings.ToLower(eleccion))
+				funciones.LeerEntrada2(eleccion)
+				//funciones.LeerEntrada2(strings.ToLower(eleccion))
 		}
 
 	}

@@ -12,22 +12,24 @@ import (
 	"fmt"
 	"go/token"
 	"unicode"
-	
+	//"strconv"
 	
 	"container/list"
 	"modernc.org/golex/lex"
 )
 
- //var LValores = list.New()
-
+		
+	var LValores *list.List
+	//var list0 *list.List
   	
-
-type ParametrosC struct {
+/*
+type ParamComandos struct {
     nombre string
     ruta   string
 }
 
-
+var parametros ParamComandos
+*/
 
 // Allocate Character classes anywhere in [0x80, 0xFF].
 const (
@@ -50,10 +52,10 @@ const (
 	concatenar
 	comentario
 	identificador
-
+	espacio
 //---------------------------------------------	
 	exec
-	pathh
+	path
 	direccion
 	direccomi
 	flecha
@@ -71,6 +73,8 @@ const (
 	sizee
 	
 )
+
+
 
 func valor(val int)int{
 	return val
@@ -124,7 +128,7 @@ func str(r rune) string {
 
 	case sizee:
 		return "size"
-	case pathh:
+	case path:
 		return "path"
 	case name:
 		return "name"
@@ -176,12 +180,14 @@ func Alexico(entrada string) int{
 
 	l := &lexer{lx}
 
-	LValores := list.New()
+	LValores = list.New()
 	//LValores := New()
+	
 
 	for {
 		c := l.scan()
 		//fmt.Printf("%v --> %s\n", str(c.Rune), l.TokenBytes(nil))
+
 
 		//LValores.PushBack(str(c.Rune)) 
 		LValores.PushBack(string(l.TokenBytes(nil)))
@@ -207,6 +213,11 @@ func Alexico(entrada string) int{
 
 }
 
+/*
+func Datos(dat ParamComandos)struct{
+	return dat
+}
+*/
 
 func (l *lexer) scan() lex.Char {
 	c := l.Enter()
@@ -222,7 +233,7 @@ nom				"/"+{identifier}+"."{identifier}
 direccion		{dir}({dir}|{nom})* 
 direccomi		"\""+[^\n]+"\""
 comentario		"#"[^\n]*			 
-letter		    [_a-zA-Z]
+letter		    [_a-zA-Z]	
 unicodeDigit	\x81
 unicodeLetter	\x80
 
@@ -242,7 +253,7 @@ unmount			return l.char(unmount)
 
 pause       	return l.char(pause)
 size			return l.char(sizee)
-path			{ /*LValores.PushFront("path") ;*/ return l.char(pathh)  }
+"path"			{ /*LValores.PushFront(l.TokenBytes(nil)) ;*/ return l.char(path)  }
 name			return l.char(name)
 
 "/"         	return l.char(DIAGONAL)
