@@ -14,6 +14,7 @@ import (
 	"unicode"
 	//"strconv"
 	
+	
 	"container/list"
 	"modernc.org/golex/lex"
 )
@@ -29,7 +30,17 @@ type ParamComandos struct {
 }
 
 var parametros ParamComandos
+
+func Retorno() ParamComandos{
+	return parametros
+}
+func Datos(dat ParamComandos){
+	 parametros=dat
+}
 */
+
+var Parametros Tokenn
+
 
 // Allocate Character classes anywhere in [0x80, 0xFF].
 const (
@@ -64,13 +75,15 @@ const (
 	mkdisk
 	archivo
 	name
+	sizee
+	unit
 
 	rmdisk
 	fdisk
 	mount
 	unmount
 
-	sizee
+
 	
 )
 
@@ -132,6 +145,8 @@ func str(r rune) string {
 		return "path"
 	case name:
 		return "name"
+	case unit:
+		return "unit"
 
 
 	case lex.RuneEOF:
@@ -168,7 +183,10 @@ func rune2Class(r rune) int {
 	return classOther
 }
 
+
 func Alexico(entrada string) int{ 
+
+	
 
 	fset := token.NewFileSet()
 	file := fset.AddFile("example.go", -1, len(entrada))
@@ -183,6 +201,8 @@ func Alexico(entrada string) int{
 	LValores = list.New()
 	//LValores := New()
 	
+	
+	
 
 	for {
 		c := l.scan()
@@ -191,6 +211,12 @@ func Alexico(entrada string) int{
 
 		//LValores.PushBack(str(c.Rune)) 
 		LValores.PushBack(string(l.TokenBytes(nil)))
+
+		/*if str(c.Rune)=="path"{
+			//fmt.Printf("*** dentro del metodo: %s \n",l.TokenBytes(nil))
+			//san:=string(l.Token())
+		Parametros.Set_Path(l.TokenBytes(nil)) 
+		}*/
 		
 		if str(c.Rune)=="Error"{
 			fmt.Printf("%v --> %s\n", str(c.Rune), l.TokenBytes(nil))
@@ -203,21 +229,17 @@ func Alexico(entrada string) int{
 			/*for temp := LValores.Front(); temp != nil; temp = temp.Next() {
         fmt.Println(">>>>>",temp.Value)
     			}*/
-		
-
 			return 0
 		}
 		
 	}
 
-
+		
 }
 
-/*
-func Datos(dat ParamComandos)struct{
-	return dat
-}
-*/
+
+
+
 
 func (l *lexer) scan() lex.Char {
 	c := l.Enter()
@@ -244,17 +266,19 @@ unicodeLetter	\x80
 
 [ \t\r\n]+
 
-exec			{ /*LValores.PushFront("exec") ;*/ return l.char(exec) }
-mkdisk			return l.char(mkdisk)
-rmdisk			return l.char(rmdisk)	
-fdisk			return l.char(fdisk)
-mount			return l.char(mount)
-unmount			return l.char(unmount)
+pause       	{ Parametros.Set_Comando(string(l.TokenBytes(nil))); return l.char(pause) }
+exec			{ /*LValores.PushFront("exec") ;*/  Parametros.Set_Comando(string(l.TokenBytes(nil))); return l.char(exec) }
+mkdisk			{ Parametros.Set_Comando(string(l.TokenBytes(nil))); return l.char(mkdisk) }
+rmdisk			{ Parametros.Set_Comando(string(l.TokenBytes(nil))); return l.char(rmdisk)	}
+fdisk			{ Parametros.Set_Comando(string(l.TokenBytes(nil))); return l.char(fdisk) }
+mount			{ Parametros.Set_Comando(string(l.TokenBytes(nil))); return l.char(mount) }
+unmount			{ Parametros.Set_Comando(string(l.TokenBytes(nil))); return l.char(unmount) }
 
-pause       	return l.char(pause)
-size			return l.char(sizee)
-"path"			{ /*LValores.PushFront(l.TokenBytes(nil)) ;*/ return l.char(path)  }
-name			return l.char(name)
+
+size			{ /*Parametros.Set_Size(string(l.TokenBytes(nil)));*/ return l.char(sizee) }
+path			{ /*Parametros.Set_Path(string(l.TokenBytes(nil)));*/ return l.char(path) }
+name			{ /*Parametros.Set_Name(string(l.TokenBytes(nil)));*/ return l.char(name) }
+unit			{ /*Parametros.Set_Unit(string(l.TokenBytes(nil)));*/ return l.char(unit) }
 
 "/"         	return l.char(DIAGONAL)
 "->"	    	return l.char(flecha)
@@ -262,14 +286,14 @@ name			return l.char(name)
 "-"				{ }
 
 
-{int}			return l.char(INT)
+{int}			{ Parametros.Set_Size(string(l.TokenBytes(nil))); return l.char(INT) }
 {negativo}  	return l.char(NEG)
 {dir} 			return l.char(dir)
-{archivo}		return l.char(archivo)   
-{direccion}		return l.char(direccion)
-{direccomi}		return l.char(direccomi)
+{archivo}		{ Parametros.Set_Name(string(l.TokenBytes(nil))); return l.char(archivo)}   
+{direccion}		{ Parametros.Set_Path(string(l.TokenBytes(nil))) ; return l.char(direccion) }
+{direccomi}		{ Parametros.Set_Path(string(l.TokenBytes(nil))) ; return l.char(direccomi) }
 {comentario}	return l.char(comentario)
-{identifier}	return l.char(identificador)
+{identifier}	{ Parametros.Set_Unit(string(l.TokenBytes(nil))); return l.char(identificador) }
 
 
 %%

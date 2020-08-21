@@ -11,6 +11,8 @@ import(
 	//"regexp"
 )
 
+var ncomando string
+
 func LineaComando(comando string) {
 	var commandArray []string
 	commandArray = strings.Split(comando, " ")
@@ -57,10 +59,13 @@ func LeerArchivoEntrada(ruta string){
 
 func LeerEntrada2(entrada string)  {
 
+	//fmt.Println("entrada:"+entrada+";")
+	if entrada!="" && entrada!="\t" && entrada!="\r"{
+
 	estado:=lexico.Alexico(entrada)
 
 	if estado==1{
-		fmt.Println("	Error: Comando no reconocido totalmente.")
+		fmt.Println("	Error Lexico: Comando no reconocido totalmente.")
 
 	}else if estado ==0{
 
@@ -68,10 +73,30 @@ func LeerEntrada2(entrada string)  {
 		ElegirComando2(entrada)
 	}
 
+	}else{
+		fmt.Println("No se ingreso ningun comando")
+	}
+}
+
+func ElegirComando2(comando string){
+
+	
+	ncomando=strings.ToLower(lexico.Parametros.Get_Comando())
+	nruta:=lexico.Parametros.Get_Path()
+	//fmt.Println(">><<"+ncomando)
+	
+	if ncomando=="exec"{
+		comandos.Exec(nruta)
+
+	}else{
+		comandos.ElegirComando(comando)
+	}
 
 }
 
-func ElegirComando2(comando string)  {
+
+/*
+func ElegirComando3(comando string)  {
 
 
 	//componentes := strings.Split(comando, "-","->")
@@ -96,9 +121,12 @@ func ElegirComando2(comando string)  {
 			}
 			// Separate into fields with func.
 			fields := strings.FieldsFunc(comando, f)
-			fmt.Println(fields[2])
+			fmt.Println("fields:"+fields[2])
 		
 		//direccion:=comandoArray[2]
+		ncomando:=lexico.Parametros.Get_Comando()
+		nruta:=lexico.Parametros.Get_Path()
+		fmt.Println("Comando:"+ncomando+" ,Ruta:"+nruta)
 
 		comandos.Exec(fields[2])
 		
@@ -110,3 +138,4 @@ func ElegirComando2(comando string)  {
 	
 	
 }
+*/

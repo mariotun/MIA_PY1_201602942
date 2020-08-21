@@ -55,8 +55,8 @@ func main()  {
 				c.Run()
 			default:
 				//fmt.Println("Comando incorrecta!!! ")
-				funciones.LeerEntrada2(eleccion)
-				//funciones.LeerEntrada2(strings.ToLower(eleccion))
+				//funciones.LeerEntrada2(eleccion)
+				funciones.LeerEntrada2(strings.ToLower(eleccion))
 		}
 
 	}
