@@ -7,6 +7,7 @@ import(
 	"bufio"
 	"strings"
 	"../lexico"
+	//"strconv"
 	//"../funciones"
 )
 
@@ -53,6 +54,20 @@ func LeerEntrada(entrada string)  {
 
 }
 
+func Crear_Carpeta(directorio string){
+
+	if _, err := os.Stat(directorio); os.IsNotExist(err) {
+
+		err = os.MkdirAll(directorio, os.ModePerm)
+
+		if err != nil {
+		  
+		  panic(err)
+		}
+	  }
+
+}
+
 func ElegirComando(entrada string){
 
 	ncomando:=lexico.Parametros.Get_Comando()
@@ -66,8 +81,14 @@ func ElegirComando(entrada string){
 		npath:=lexico.Parametros.Get_Path()
 		nname:=lexico.Parametros.Get_Name()
 		nunit:=lexico.Parametros.Get_Unit()
-		MKDISK(nsize,npath,nname,nunit)
+		
+		if nsize!=0 && npath!="" && nname!="" {
 
+		MKDISK(nsize,npath,nname,nunit)
+		
+		}else{
+			fmt.Println(" Error: El valor de algun parametro no es el correcto para el comando. ")
+		}
 		lexico.Parametros.Limpiar()
 
 	}else if ncomando=="rmdisk"{

@@ -6,7 +6,7 @@ package lexico
 type Tokenn struct {
 	pause string
 	comando string
-	size string
+	size int64
 	path string
 	name string
 	unit string
@@ -15,7 +15,7 @@ type Tokenn struct {
 func (t *Tokenn) Limpiar(){
 	t.pause=""
 	t.comando=""
-	t.size=""
+	t.size=0
 	t.path=""
 	t.name=""
 	t.unit=""
@@ -36,10 +36,10 @@ func (t *Tokenn) Get_Comando() string{
 	return t.comando
 }
 //--------------------------------------------------------------
-func (t *Tokenn) Set_Size(nsize string) {
+func (t *Tokenn) Set_Size(nsize int64) {
 	t.size = nsize
 }
-func (t *Tokenn) Get_Size() string{
+func (t *Tokenn) Get_Size() int64{
 	return t.size
 }
 //--------------------------------------------------------------

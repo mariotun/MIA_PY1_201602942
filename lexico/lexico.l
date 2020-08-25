@@ -12,7 +12,7 @@ import (
 	"fmt"
 	"go/token"
 	"unicode"
-	//"strconv"
+	"strconv"
 	
 	
 	"container/list"
@@ -249,10 +249,10 @@ digit			[0-9]|{unicodeDigit}
 identifier		{letter}({letter}|{digit})* 
 int				[0-9]+
 negativo 		"-"+{int}
-dir 			"/"+{identifier}
-archivo 		{identifier}+"."{identifier}
-nom				"/"+{identifier}+"."{identifier}
-direccion		{dir}({dir}|{nom})* 
+dir 			{identifier}+"/"
+archivo 		{identifier}+".dsk"
+nom				{identifier}+"."{identifier}
+direccion		"/"+{dir}({dir}|{nom})* 
 direccomi		"\""+[^\n]+"\""
 comentario		"#"[^\n]*			 
 letter		    [_a-zA-Z]	
@@ -286,7 +286,8 @@ unit			{ /*Parametros.Set_Unit(string(l.TokenBytes(nil)));*/ return l.char(unit)
 "-"				{ }
 
 
-{int}			{ Parametros.Set_Size(string(l.TokenBytes(nil))); return l.char(INT) }
+{int}			{ if num,err:=strconv.ParseInt(string(l.TokenBytes(nil)),10,64);err==nil{  Parametros.Set_Size(num) }else{ } ;
+				  return l.char(INT) }
 {negativo}  	return l.char(NEG)
 {dir} 			return l.char(dir)
 {archivo}		{ Parametros.Set_Name(string(l.TokenBytes(nil))); return l.char(archivo)}   
