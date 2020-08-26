@@ -49,22 +49,22 @@ type MbrStr struct {
     Mbr_tamano int64 //Tamano total del disco en bytes
     Mbr_fecha_creacion [20]byte  //Fecha y hora de creacion del disco
     Mbr_disk_signature int //Numero random, que identifica de forma unica cada disco
-    Mbr_disk_fit [100] byte //Tipo de ajuste
+    Mbr_disk_fit [30] byte //Tipo de ajuste
     Mbr_partition [4]Partition //4 particiones
 }
 
 type Partition struct{
-    part_status [100]byte //Indica si la particion esta activa o no
-    part_type [100]byte //Indica el tipo de particion
-    part_fit [100]byte //Tipo de ajuste de la particion
-    part_start int64 //Indica en que byte del disco inicia la particion
-    part_size int64 //Contiene el tamano de la particion en bytes
-    part_name [16]byte //Nombre de la particion
+    Part_status byte //Indica si la particion esta activa o no
+    Part_type byte //Indica el tipo de particion
+    Part_fit byte //Tipo de ajuste de la particion
+    Part_start int64 //Indica en que byte del disco inicia la particion
+    Part_size int64 //Contiene el tamano de la particion en bytes
+    Part_name [16]byte //Nombre de la particion
 }
 
 type EbrStr struct{
-    part_status [30]byte //Indica si la particion esta activa o no
-    part_fit [50]byte //Tipo de ajuste
+    part_status [1]byte //Indica si la particion esta activa o no
+    part_fit [1]byte //Tipo de ajuste
     part_start int64 //Indica en que byte del disco inicia la particion
     part_size int64 //Contiene el tamano total de la particion en bytes
     part_next int64 //Byte en el que esta el proxima EBR. -1 si no hay siguiente

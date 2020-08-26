@@ -56,9 +56,29 @@ func main()  {
 			default:
 				//fmt.Println("Comando incorrecta!!! ")
 				//funciones.LeerEntrada2(eleccion)
-				funciones.LeerEntrada2(strings.ToLower(eleccion))
+			
+
+			//fmt.Println("\ncorregido:",Corregir_Entrada(eleccion))	
+				entrada:=Corregir_Entrada(eleccion)			
+				funciones.LeerEntrada2(strings.ToLower(entrada))
 		}
 
 	}
 
+}
+
+
+func Corregir_Entrada(entrada string)string{
+
+	salida:=""
+	splitFunc := func(r rune) bool {
+		return strings.ContainsRune(" ,\n,\r,\t", r)
+	}
+
+	palabras := strings.FieldsFunc(entrada, splitFunc)
+	for _, palabra := range palabras {
+		//fmt.Printf("Palabra %d es: %s\n", idx, palabra)
+		salida+=palabra
+	}
+	return salida
 }

@@ -1,7 +1,7 @@
 
 package lexico
 
-//import ("strings")
+import ("strings")
 
 type Tokenn struct {
 	pause string
@@ -9,7 +9,12 @@ type Tokenn struct {
 	size int64
 	path string
 	name string
+	namefd string
 	unit string
+	tipo string
+	fit string
+	delete string
+	add string
 }
 
 func (t *Tokenn) Limpiar(){
@@ -18,7 +23,12 @@ func (t *Tokenn) Limpiar(){
 	t.size=0
 	t.path=""
 	t.name=""
+	t.namefd=""
 	t.unit=""
+	t.tipo=""
+	t.fit=""
+	t.delete=""
+	t.add=""
 }
 
 //---------------------------------------------------------------
@@ -63,4 +73,41 @@ func (t *Tokenn) Set_Unit(nunit string) {
 }
 func (t *Tokenn) Get_Unit() string{
 	return t.unit
+}
+//--------------------------------------------------------------
+func (t *Tokenn) Set_Tipo(ntipo string) {
+	t.tipo =ntipo
+}
+func (t *Tokenn) Get_Tipo() string{
+	return t.tipo
+}
+//--------------------------------------------------------------
+func (t *Tokenn) Set_Namefd(nnamefd string) {
+	t.namefd = nnamefd
+}
+func (t *Tokenn) Get_Namefd() string{
+	return t.namefd
+}
+//--------------------------------------------------------------
+func (t *Tokenn) Set_Fit(nfit string) {
+	t.fit = nfit
+}
+func (t *Tokenn) Get_Fit() string{
+	return t.fit
+}
+//--------------------------------------------------------------
+func (t *Tokenn) Set_Delete(ndelete string) {
+	t.delete = ndelete
+}
+func (t *Tokenn) Get_Delete() string{
+	return t.delete
+}
+//--------------------------------------------------------------
+func (t *Tokenn) Set_Add(nadd string) {
+	
+	dato:=strings.Split(nadd,"->")
+	t.add = dato[1]
+}
+func (t *Tokenn) Get_Add() string{
+	return t.add
 }

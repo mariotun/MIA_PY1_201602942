@@ -64,6 +64,7 @@ const (
 	comentario
 	identificador
 	espacio
+	letra
 //---------------------------------------------	
 	exec
 	path
@@ -77,6 +78,11 @@ const (
 	name
 	sizee
 	unit
+	typee
+	tipo
+	deletee
+	add
+	fit
 
 	rmdisk
 	fdisk
@@ -123,6 +129,10 @@ func str(r rune) string {
 		return "identificador"
 	case concatenar:
 		return "concatenar"
+	case letra:
+		return "letra"
+	case tipo:
+		return "tipo"
 
 	case exec:
 		return "exec"
@@ -147,6 +157,14 @@ func str(r rune) string {
 		return "name"
 	case unit:
 		return "unit"
+	case typee:
+		return "typee"
+	case deletee:
+		return "deletee"
+	case add:
+		return "add"
+	case fit:
+		return "fit"
 
 
 	case lex.RuneEOF:
@@ -256,6 +274,8 @@ direccion		"/"+{dir}({dir}|{nom})*
 direccomi		"\""+[^\n]+"\""
 comentario		"#"[^\n]*			 
 letter		    [_a-zA-Z]	
+tipo			{"e"|"p"|"l"}
+add  			"add->"+{int}
 unicodeDigit	\x81
 unicodeLetter	\x80
 
@@ -264,7 +284,7 @@ unicodeLetter	\x80
 
 	c = l.Rule0()
 
-[ \t\r\n]+
+[ \t\r\n]+		
 
 pause       	{ Parametros.Set_Comando(string(l.TokenBytes(nil))); return l.char(pause) }
 exec			{ /*LValores.PushFront("exec") ;*/  Parametros.Set_Comando(string(l.TokenBytes(nil))); return l.char(exec) }
@@ -279,13 +299,22 @@ size			{ /*Parametros.Set_Size(string(l.TokenBytes(nil)));*/ return l.char(sizee
 path			{ /*Parametros.Set_Path(string(l.TokenBytes(nil)));*/ return l.char(path) }
 name			{ /*Parametros.Set_Name(string(l.TokenBytes(nil)));*/ return l.char(name) }
 unit			{ /*Parametros.Set_Unit(string(l.TokenBytes(nil)));*/ return l.char(unit) }
+"type"			{ /*Parametros.Set_Tipo(string(l.TokenBytes(nil)));*/ return l.char(typee)}
+"delete"		{ return l.char(deletee) }
+fit				{ return l.char(fit) }
+
 
 "/"         	return l.char(DIAGONAL)
 "->"	    	return l.char(flecha)
 "\*"			return l.char(concatenar)
 "-"				{ }
 
+{letter}		{ if (string(l.TokenBytes(nil))=="p"||string(l.TokenBytes(nil))=="e"||string(l.TokenBytes(nil))=="l"){
+					Parametros.Set_Tipo(string(l.TokenBytes(nil)))
+			     }
+				 Parametros.Set_Unit(string(l.TokenBytes(nil))); return l.char(letra) }
 
+{tipo}			{ /*Parametros.Set_Tipo(string(l.TokenBytes(nil)));*/ return l.char(tipo)}
 {int}			{ if num,err:=strconv.ParseInt(string(l.TokenBytes(nil)),10,64);err==nil{  Parametros.Set_Size(num) }else{ } ;
 				  return l.char(INT) }
 {negativo}  	return l.char(NEG)
@@ -294,7 +323,19 @@ unit			{ /*Parametros.Set_Unit(string(l.TokenBytes(nil)));*/ return l.char(unit)
 {direccion}		{ Parametros.Set_Path(string(l.TokenBytes(nil))) ; return l.char(direccion) }
 {direccomi}		{ Parametros.Set_Path(string(l.TokenBytes(nil))) ; return l.char(direccomi) }
 {comentario}	return l.char(comentario)
-{identifier}	{ Parametros.Set_Unit(string(l.TokenBytes(nil))); return l.char(identificador) }
+
+{add}			{ Parametros.Set_Add(string(l.TokenBytes(nil))); return l.char(add) }
+
+{identifier}	{ if (string(l.TokenBytes(nil))=="bf"||string(l.TokenBytes(nil))=="ff"||string(l.TokenBytes(nil))=="wf"){
+					Parametros.Set_Fit(string(l.TokenBytes(nil)))
+
+			     }else if (string(l.TokenBytes(nil))=="fast"||string(l.TokenBytes(nil))=="full"){
+					Parametros.Set_Delete(string(l.TokenBytes(nil)))
+			     }else{
+					Parametros.Set_Namefd(string(l.TokenBytes(nil))) 
+				} 
+				
+				 return l.char(identificador) }
 
 
 %%

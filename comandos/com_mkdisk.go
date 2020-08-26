@@ -13,7 +13,7 @@ import(
 	//"unsafe"
 
 	"../estructuras"
-	//"strings"
+	"strings"
 	//"strconv"
 	"time"
 	//"math/rand"
@@ -25,8 +25,8 @@ import(
  //var nsize int64=0
 
 func MKDISK(size int64,path string,name string,unit string){
-	/*fmt.Println("Dentro de la funcion mkdisk :\n"+" size:"+size+"\n path:"+path+
-	"\n name:"+name+"\n unit:"+unit+"\n")*/
+	fmt.Println("Dentro de la funcion mkdisk :"+"\n path:"+path+
+	"\n name:"+name+"\n unit:"+unit+"\n")
 	Escribir_Archivo(size,path,name,unit)
 
 }
@@ -37,6 +37,9 @@ func Escribir_Archivo(size int64,path string,name string,unit string){
 
 	DiscoDuro:=estructuras.MbrStr{ }//inicializamos el struct para el mbr
 	//fmt.Println("-->",path)
+	if strings.HasPrefix(path,"\"")==true{
+		path=path[1:len(path)-1]
+	}
 	Crear_Carpeta(path)
 
 	dir:=path+name
@@ -88,6 +91,16 @@ func Escribir_Archivo(size int64,path string,name string,unit string){
 	fmt.Println("random:",DiscoDuro.Mbr_disk_signature)
 	fmt.Println("Tamaño:",DiscoDuro.Mbr_tamano)
 	fmt.Println("hora-fecha:",string(DiscoDuro.Mbr_fecha_creacion[:]))
+
+	for i := 0; i < 4; i++ {
+		fmt.Println(" i: ",i)
+		DiscoDuro.Mbr_partition[i].Part_status='0'
+		DiscoDuro.Mbr_partition[i].Part_type='0'
+		DiscoDuro.Mbr_partition[i].Part_fit='0'
+		DiscoDuro.Mbr_partition[i].Part_start=-1
+		DiscoDuro.Mbr_partition[i].Part_size=0
+		copy(DiscoDuro.Mbr_partition[i].Part_name[:],"")
+	}
 
 	//nos posicionamos en el incio del archivo para escribir el mbr
 	archivo.Seek(0,0)

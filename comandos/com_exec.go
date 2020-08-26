@@ -23,16 +23,39 @@ func Exec(ruta string)  {
 
 	scanner:=bufio.NewScanner(archivo)
 	
-	
+	ln:=""
 	for scanner.Scan(){
 		i++
+		
 		linea:=scanner.Text()
-		LeerEntrada(strings.ToLower(linea))
+		if strings.HasSuffix(linea, "*")==true{
+			 ln+=linea[0:len(linea)-2]
+		}else{
+	
+			entrada:=Corregir_Entrada(ln+linea)
+		LeerEntrada(strings.ToLower(entrada))
 		//LeerEntrada(linea)
-		fmt.Println(i,linea)
+		fmt.Println(i,entrada)
+		ln=""
+		}
 	}
 
 
+}
+
+func Corregir_Entrada(entrada string)string{
+
+	salida:=""
+	splitFunc := func(r rune) bool {
+		return strings.ContainsRune(" ,\n,\r,\t", r)
+	}
+
+	palabras := strings.FieldsFunc(entrada, splitFunc)
+	for _, palabra := range palabras {
+		//fmt.Printf("Palabra %d es: %s\n", idx, palabra)
+		salida+=palabra
+	}
+	return salida
 }
 
 
@@ -77,6 +100,7 @@ func ElegirComando(entrada string){
 		bufio.NewReader(os.Stdin).ReadBytes('\n') 
 
 	}else if ncomando=="mkdisk"{
+
 		nsize:=lexico.Parametros.Get_Size()
 		npath:=lexico.Parametros.Get_Path()
 		nname:=lexico.Parametros.Get_Name()
@@ -92,11 +116,31 @@ func ElegirComando(entrada string){
 		lexico.Parametros.Limpiar()
 
 	}else if ncomando=="rmdisk"{
-		RMDISK()
+
+		npath:=lexico.Parametros.Get_Path()
+		if npath!=""{
+		RMDISK(npath)
+		}else{
+			fmt.Println(" Error: No se encontro la ruta del disco a eliminar.")
+		}
 		lexico.Parametros.Limpiar()
 
 	}else if ncomando=="fdisk"{
-		FDISK()
+		nsize:=lexico.Parametros.Get_Size()
+		npath:=lexico.Parametros.Get_Path()
+		nnamefd:=lexico.Parametros.Get_Namefd()
+		nunit:=lexico.Parametros.Get_Unit()
+		ntipo:=lexico.Parametros.Get_Tipo()
+		nfit:=lexico.Parametros.Get_Fit()
+		ndelete:=lexico.Parametros.Get_Delete()
+		nadd:=lexico.Parametros.Get_Add()
+
+		fmt.Println("size:",nsize)
+		fmt.Println(" path:"+npath+" name:"+nnamefd+" unit:"+nunit+" tipo:"+ntipo)
+		fmt.Println(" fit:"+nfit+" delete:"+ndelete+" add:"+nadd)
+		
+		FDISK(nsize,nunit,npath,ntipo,nfit,ndelete,nnamefd,nadd)
+
 		lexico.Parametros.Limpiar()
 
 	}else if ncomando=="mount"{
