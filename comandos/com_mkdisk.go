@@ -94,7 +94,7 @@ func Escribir_Archivo(size int64,path string,name string,unit string){
 
 	for i := 0; i < 4; i++ {
 		fmt.Println(" i: ",i)
-		DiscoDuro.Mbr_partition[i].Part_status='0'
+		DiscoDuro.Mbr_partition[i].Part_status='1'
 		DiscoDuro.Mbr_partition[i].Part_type='0'
 		DiscoDuro.Mbr_partition[i].Part_fit='0'
 		DiscoDuro.Mbr_partition[i].Part_start=-1
@@ -119,6 +119,7 @@ func Escribir_Archivo(size int64,path string,name string,unit string){
 
 
 }
+
 
 func Escribir_Bytes(archivo *os.File,bytes []byte){
 	_,err:=archivo.Write(bytes)
