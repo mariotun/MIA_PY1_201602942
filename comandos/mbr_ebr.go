@@ -8,6 +8,8 @@ import (
 	
 	"encoding/binary"
 	"log"
+	"unsafe"
+	
 	"../estructuras"
 )
 
@@ -15,44 +17,49 @@ func Escribir_MBR(path string,mbr estructuras.MbrStr ){
 
 	archivo, err := os.OpenFile(path,os.O_RDWR,0777)
 	defer archivo.Close()
-	if err != nil { log.Fatal(err) }
+	if err != nil { 
+		fmt.Println(" mario tun quino")
+		log.Fatal(err) }
 	
 	var binario3 bytes.Buffer
-	binary.Write(&binario3, binary.BigEndian, mbr)
+	binary.Write(&binario3, binary.BigEndian, &mbr)
+	Escribir_Bytes(archivo,binario3.Bytes())
 
-	_, err = archivo.Write(binario3.Bytes())
+	/*_, err = archivo.Write(binario3.Bytes())
 	if err != nil {
+		fmt.Println(" tun quino")
 		log.Fatal(err)
-	}
+	}*/
 }
 
 func Leer_MBR(path string) (error,estructuras.MbrStr){
 
 	file, err := os.Open(path)
+	//file,err:=os.OpenFile(path,os.O_RDWR,0777)
 	defer file.Close()
 
-	if err!= nil {
+	if err != nil {
 		//log.Fatal(err)
 		return err,estructuras.MbrStr{ }
 	}
 
-	m :=  estructuras.MbrStr{ }
-	var size int = int(binary.Size(m))
+	m :=  estructuras.MbrStr{}
 	
-	/*data := make([]byte, size)
-	
-	_, err = file.Read(data)
-	if err != nil {
-		log.Fatal(err)
-	}*/
-	data:=Leer_Bytes(file,size)
-	buffer:=bytes.NewBuffer(data)
+//	var size int = binary.Size(m)
+	var size int=int(unsafe.Sizeof(m))
+	//fmt.Println(" size: ",size)
+
+	data := Leer_Bytes(file,size)
+	buffer := bytes.NewBuffer(data)
 	
 	err = binary.Read(buffer, binary.BigEndian, &m)
 	if err != nil {
-		log.Fatal("binary.Read failed", err)
+		log.Fatal(" binary.Read failed", err)//AQUI SALE EL MENSAJE DEL ERROR 
 	}
 	
+	fmt.Println(m)
+	fmt.Printf("Cadena: %s\n",m.Mbr_fecha_creacion)
+
 	return err,m
 	
 }
@@ -97,7 +104,7 @@ func Leer_EBR(path string,start int64) (error,estructuras.EbrStr){
 
 	err = binary.Read(buffer, binary.BigEndian, &ebr)
 	if err != nil {
-		fmt.Println(" Error al leer binario ")
+		fmt.Println(" Error al leer binario (ebr)")
 		//log.Fatal("binary.Read failed", err)
 	}
 
@@ -107,15 +114,6 @@ func Leer_EBR(path string,start int64) (error,estructuras.EbrStr){
 
 
 
-
-
-
-
-/*
-func Escribir_Bytes(archivo *os.File,bytes []byte){
-	_,err:=archivo.Write(bytes)
-	if err!=nil{ log.Fatal(err) }
-}*/
 
 func Leer_Bytes(file *os.File, number int) []byte {
 	bytes := make([]byte, number) //array de bytes

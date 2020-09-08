@@ -7,9 +7,11 @@ import(
 	
 	//"io/ioutil"
 	"encoding/binary"
+	
 	//"bytes"
 	"bufio"
 //	"log"
+	//"unsafe"
 	"strings"
 	//"strconv"
 	"../estructuras"
@@ -68,6 +70,7 @@ func Crear_Particiones(size int64,unit string,path string,tipo string,fit string
 
 	if ( tipo == "p" || tipo == "" ) {
 		if ExisteArchivo(path)==true{
+			fmt.Println(" R_P_P")
 			Realizar_Particion_Primaria(path,name,size,fit,unit)
 		}else{
 			fmt.Println(" Error: El disco donde se desea crear la particion no existe.")
@@ -93,15 +96,24 @@ func Crear_Particiones(size int64,unit string,path string,tipo string,fit string
 }
 
 func ExisteArchivo(name string) bool {
-    if _, err := os.Stat(name); err != nil {
+    /*if _, err := os.Stat(name); err != nil {
         if os.IsNotExist(err) {
             return false
-        }
+        }else{ 
+			return true
+		}
     }
-    return true
+	return false*/
+	filename := name
+	if _, err := os.Stat(filename); os.IsNotExist(err) {
+		fmt.Println("file does not exist")
+		return false
+	}else{
+	return true }
 }
 
 func Realizar_Particion_Primaria(path string,name string,size int64,fit string,unit string){
+
 
 	var size_completo int64=1024
 	//var buffer byte='1'
@@ -111,7 +123,7 @@ func Realizar_Particion_Primaria(path string,name string,size int64,fit string,u
 		fit_aux='b'
 	}else if ( fit == "wf" || fit == "" ){
 		fit_aux='w'
-	}else if( fit == "ff"){
+	}else if ( fit == "ff"){
 		fit_aux='f'
 	}
 
@@ -128,6 +140,7 @@ func Realizar_Particion_Primaria(path string,name string,size int64,fit string,u
  //masterb:=estructuras.MbrStr{ }
 	
  //archivo,err := os.OpenFile(path, os.O_CREATE|os.O_RDWR, 0777)
+ //fmt.Println("--->",path)
 	err,masterb:=Leer_MBR(path)	
 
  	if err != nil {
@@ -135,6 +148,7 @@ func Realizar_Particion_Primaria(path string,name string,size int64,fit string,u
 		//archivo.Close()
 		panic(err)
 	}else{
+		
 		//io.WriteString(f, "+ test string")
 		var fparticion bool=false
 		var numparticion int=0
@@ -145,7 +159,7 @@ func Realizar_Particion_Primaria(path string,name string,size int64,fit string,u
 		data := LeerBytes(archivo, sizemb)//Lee la cantidad de <size> bytes del archivo
 		*/
 
-		//ver si existe espacion para otra particion
+		//ver si existe espacio para otra particion
 		for i:=0 ; i < 4 ; i++ {
 			if ( masterb.Mbr_partition[i].Part_start ==-1 || (masterb.Mbr_partition[i].Part_status =='1' && masterb.Mbr_partition[i].Part_size >= size_completo) ) {
 				fparticion=true
@@ -160,15 +174,19 @@ func Realizar_Particion_Primaria(path string,name string,size int64,fit string,u
 
 			for i:=0 ; i < 4 ; i++ {//revisa el espacio libre del disco
 				if(masterb.Mbr_partition[i].Part_status != '1' ){
-					espacio_utilizado+=masterb.Mbr_partition[i].Part_size
+					espacio_utilizado+=masterb.Mbr_partition[i].Part_size//espacio de cada particion ocupada
 				}
 			}
 
-			fmt.Println(" Espacio disponible: ",(masterb.Mbr_tamano-espacio_utilizado)," bytes")
+			var tam int64
+			tam=masterb.Mbr_tamano-int64(binary.Size(masterb))
+
+
+			fmt.Println(" Espacio disponible: ",(tam-espacio_utilizado)," bytes")
 			fmt.Println(" Espacio reqerido: ",size_completo," bytes")
 
 			//ver si hay espacio para crear la particion
-			if ( (masterb.Mbr_tamano - espacio_utilizado) >= size_completo) {
+			if ( (tam - espacio_utilizado) >= size_completo) {
 				
 				if( !(ParticionExiste(path,name)) ){
 
@@ -277,12 +295,15 @@ func Realizar_Particion_Extendida(path string,name string,size int64,fit string,
 						espacio_utilizado+=masterb.Mbr_partition[i].Part_size
 					}
 				}
+
+				var tam int64
+				tam=masterb.Mbr_tamano-int64(binary.Size(masterb))
 	
-				fmt.Println(" Espacio disponible: ",(masterb.Mbr_tamano-espacio_utilizado)," bytes")
+				fmt.Println(" Espacio disponible: ",(tam-espacio_utilizado)," bytes")
 				fmt.Println(" Espacio reqerido: ",size_completo," bytes")
 	
 				//ver si hay espacio para crear la particion
-				if ( (masterb.Mbr_tamano - espacio_utilizado) >= size_completo) {
+				if ( (tam- espacio_utilizado) >= size_completo) {
 					
 					if( !(ParticionExiste(path,name)) ){
 	
@@ -308,9 +329,9 @@ func Realizar_Particion_Extendida(path string,name string,size int64,fit string,
 	
 						Escribir_MBR(path,masterb)
 
-						Ebr:=estructuras.EbrStr{ }
+						Ebr:=estructuras.EbrStr{}
 						Ebr.Part_fit=fit_aux
-						Ebr.Part_status='0'
+						Ebr.Part_status='1'
 						Ebr.Part_start=masterb.Mbr_partition[numparticion].Part_start
 						Ebr.Part_size=0
 						Ebr.Part_next=-1

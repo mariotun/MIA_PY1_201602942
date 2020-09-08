@@ -7,6 +7,7 @@ import(
 	"bufio"
 	"strings"
 	"../lexico"
+	
 	//"strconv"
 	//"../funciones"
 )
@@ -139,6 +140,10 @@ func ElegirComando(entrada string){
 		fmt.Println(" path:"+npath+" name:"+nnamefd+" unit:"+nunit+" tipo:"+ntipo)
 		fmt.Println(" fit:"+nfit+" delete:"+ndelete+" add:"+nadd)
 		
+		if strings.HasPrefix(npath,"\"")==true{
+			npath=npath[1:len(npath)-1]
+		}
+
 		FDISK(nsize,nunit,npath,ntipo,nfit,ndelete,nnamefd,nadd)
 
 		lexico.Parametros.Limpiar()

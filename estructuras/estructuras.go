@@ -48,8 +48,8 @@ type UnmountStr struct{
 type MbrStr struct {
     Mbr_tamano int64 //Tamano total del disco en bytes
     Mbr_fecha_creacion [20]byte  //Fecha y hora de creacion del disco
-    Mbr_disk_signature int //Numero random, que identifica de forma unica cada disco
-    Mbr_disk_fit [2]byte //Tipo de ajuste
+    Mbr_disk_signature int64 //Numero random, que identifica de forma unica cada disco
+  //  Mbr_disk_fit [2]byte //Tipo de ajuste
     Mbr_partition [4]Partition //4 particiones
 }
 
