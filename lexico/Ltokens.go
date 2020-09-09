@@ -15,6 +15,7 @@ type Tokenn struct {
 	fit string
 	delete string
 	add string
+	namegrafic string
 }
 
 func (t *Tokenn) Limpiar(){
@@ -29,6 +30,7 @@ func (t *Tokenn) Limpiar(){
 	t.fit=""
 	t.delete=""
 	t.add=""
+	t.namegrafic=""
 }
 
 //---------------------------------------------------------------
@@ -110,4 +112,12 @@ func (t *Tokenn) Set_Add(nadd string) {
 }
 func (t *Tokenn) Get_Add() string{
 	return t.add
+}
+//--------------------------------------------------------------
+func (t *Tokenn) Set_NameGrafic(namegra string) {
+	t.namegrafic=namegra
+	
+}
+func (t *Tokenn) Get_NameGrafic() string{
+	return t.namegrafic
 }

@@ -88,6 +88,7 @@ const (
 	fdisk
 	mount
 	unmount
+	rep
 
 
 	
@@ -148,6 +149,8 @@ func str(r rune) string {
 		return "mount"
     case unmount:
 		return "unmount"
+	case rep:
+		return "rep"
 
 	case sizee:
 		return "size"
@@ -293,7 +296,7 @@ rmdisk			{ Parametros.Set_Comando(string(l.TokenBytes(nil))); return l.char(rmdi
 fdisk			{ Parametros.Set_Comando(string(l.TokenBytes(nil))); return l.char(fdisk) }
 mount			{ Parametros.Set_Comando(string(l.TokenBytes(nil))); return l.char(mount) }
 unmount			{ Parametros.Set_Comando(string(l.TokenBytes(nil))); return l.char(unmount) }
-
+rep				{ Parametros.Set_Comando(string(l.TokenBytes(nil))); return l.char(rep) }
 
 size			{ /*Parametros.Set_Size(string(l.TokenBytes(nil)));*/ return l.char(sizee) }
 path			{ /*Parametros.Set_Path(string(l.TokenBytes(nil)));*/ return l.char(path) }
@@ -311,8 +314,8 @@ fit				{ return l.char(fit) }
 
 {letter}		{ if (string(l.TokenBytes(nil))=="p"||string(l.TokenBytes(nil))=="e"||string(l.TokenBytes(nil))=="l"){
 					Parametros.Set_Tipo(string(l.TokenBytes(nil)))
-			     }
-				 Parametros.Set_Unit(string(l.TokenBytes(nil))); return l.char(letra) }
+			     }else{
+				 Parametros.Set_Unit(string(l.TokenBytes(nil))); return l.char(letra) } }
 
 {tipo}			{ /*Parametros.Set_Tipo(string(l.TokenBytes(nil)));*/ return l.char(tipo)}
 {int}			{ if num,err:=strconv.ParseInt(string(l.TokenBytes(nil)),10,64);err==nil{  Parametros.Set_Size(num) }else{ } ;
@@ -331,7 +334,11 @@ fit				{ return l.char(fit) }
 
 			     }else if (string(l.TokenBytes(nil))=="fast"||string(l.TokenBytes(nil))=="full"){
 					Parametros.Set_Delete(string(l.TokenBytes(nil)))
-			     }else{
+
+			     }else if( string(l.TokenBytes(nil))=="mbr" || string(l.TokenBytes(nil))=="disk" || string(l.TokenBytes(nil))=="sb" ){
+					 Parametros.Set_NameGrafic(string(l.TokenBytes(nil)))
+
+				 }else{
 					Parametros.Set_Namefd(string(l.TokenBytes(nil))) 
 				} 
 				

@@ -156,6 +156,12 @@ func ElegirComando(entrada string){
 		UNMOUNT()
 		lexico.Parametros.Limpiar()
 
+	}else if ncomando=="rep"{
+		npath:=lexico.Parametros.Get_Path()
+		nnamegrafic:=lexico.Parametros.Get_NameGrafic()
+		
+		REP(npath,nnamegrafic)
+		lexico.Parametros.Limpiar()
 	}
 	/*else{
 		fmt.Println(" (*) No hay un comando con ese combre")

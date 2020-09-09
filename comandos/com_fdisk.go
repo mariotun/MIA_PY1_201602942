@@ -406,7 +406,7 @@ func Realizar_Particion_Logica(path string,name string,size int64,fit string,uni
 			}
 		}
 
-		if ( (ParticionExiste(path,name) == false) ){
+		if ( !(ParticionExiste(path,name)) ){
 
 			if( numextendida != -1 ){
 				
@@ -423,6 +423,10 @@ func Realizar_Particion_Logica(path string,name string,size int64,fit string,uni
 					//Ebr:=estructuras.EbrStr{ }
 
 					if ( ebr.Part_size == 0){//si es la primera logica a crear
+						fmt.Println(" PRIMERA LOGICA ")
+
+						//var tam int64
+					    //tam=masterb.Mbr_partition[numextendida].Part_size-int64(binary.Size(ebr))
 						
 						if (masterb.Mbr_partition[numextendida].Part_size < size_completo){
 							fmt.Println(" Error: La particion logica a crear excede al espacio disponible de la particion extendida. ")
@@ -445,7 +449,7 @@ func Realizar_Particion_Logica(path string,name string,size int64,fit string,uni
 						}
 
 					}else{//si ya hay particiones logicas dentro de la extendida
-						
+						fmt.Println(" SIGUIENTES LOGICAS ")
 						ebr2:=estructuras.EbrStr{ }//es para crear otro ebr y unirlo a los demas 
 
 						var aux estructuras.EbrStr
@@ -473,7 +477,7 @@ func Realizar_Particion_Logica(path string,name string,size int64,fit string,uni
 							ebr2.Part_next=-1
 							ebr2.Part_name=namen2
 
-							Escribir_EBR(path,ebr)
+							Escribir_EBR(path,ebr2)
 
 							fmt.Println(" Mensaje: Particion logica creada con exito. ")
 
@@ -596,6 +600,10 @@ func ParticionExiste(path string, name string) bool{
 						return true
 					}
 					err2,aux=Leer_EBR(path,aux.Part_next)
+				}
+
+				if(aux.Part_name==namee2){
+					return true
 				}
 				
 			}

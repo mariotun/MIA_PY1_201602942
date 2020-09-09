@@ -42,6 +42,10 @@ func Escribir_Archivo(size int64,path string,name string,unit string){
 	Crear_Carpeta(path)
 
 	dir:=path+name
+
+
+	if( ExisteArchivo(dir)==false){
+
 	archivo,err:=os.Create(dir) //se crea el archivo binario con el nombre del paramtro
 	defer archivo.Close()
 	if err!=nil{ 
@@ -118,12 +122,16 @@ func Escribir_Archivo(size int64,path string,name string,unit string){
 	archivo.Close()
 	fmt.Println("--Mensaje: Se creo el disco correctamente.")
 
-
+	}else{ fmt.Println(" Error: El disco a crear ya existe en la carpeta. ")}
+	
 
 	}else{
 		fmt.Print(" Error:\n (1)El valor de Size no es el correcto para la creacion del disco."+
 			     "\n (2)La letra para las unidades no es la correcta.")
 	}
+
+
+	
 
 
 }
@@ -133,3 +141,6 @@ func Escribir_Bytes(archivo *os.File,bytes []byte){
 	_,err:=archivo.Write(bytes)
 	if err!=nil{ log.Fatal(err) }
 }
+
+
+
