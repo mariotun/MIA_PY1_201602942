@@ -1,4 +1,4 @@
-package funciones
+package comandos
 
 import(
 	"fmt"
@@ -33,7 +33,7 @@ func (L *Lista) Insertar (datos interface{ }){
 type NodoParticiones struct{
 	path string
 	nombre string
-	letra string
+	letra byte
 	num int
 	next *NodoParticiones
 
@@ -68,24 +68,24 @@ func (L *ListaSimple) Mostrar(){
 
 }
 
-/*func (L *ListaSimple) BuscarLetra (path string, nombre string) int{
+func (L *ListaSimple) BuscarLetra(path string, nombre string) int{
 	aux:=L.first
-	retorno:=1
+	retorno:=int('a')
 
 	for aux !=nil{
-		if ( (path==aux.path) && (nombre==aux.nombre)){
-			return -1
+		if ( (path == aux.path) && (nombre == aux.nombre)){
+			return -1//para indicar que ya esta montado en -1
 		}else{
 			if path==aux.path{
-				return aux.letra
-			}else if retorno <= aux.letra{
+				return int(aux.letra)
+			}else if retorno <= int(aux.letra) {
 				retorno++;
 			}
 		}
 		aux=aux.next
 	}
 	return retorno
-}*/
+}
 
 func (L *ListaSimple) BuscarNumero(path string, nombre string) int{
 	aux:=L.first
@@ -94,7 +94,7 @@ func (L *ListaSimple) BuscarNumero(path string, nombre string) int{
 	for aux!=nil{
 		if ( (path==aux.path) && (retorno==aux.num)){
 			retorno++
-			fmt.Println("retorno: ",retorno)
+			//fmt.Println("retorno: ",retorno)
 		}
 		aux=aux.next	
 	}
@@ -106,11 +106,13 @@ func (L *ListaSimple) GetDireccion(id string) string {
 	
 	for aux!=nil{
 		temp_id:="vd"
-		temp_id+=aux.letra+strconv.Itoa(aux.num)
+		temp_id += string(aux.letra) + strconv.Itoa(aux.num)
 		
-		if id==temp_id{
+		if id == temp_id{
 			return aux.path
 		}
+
+		aux=aux.next
 	}
 	return "nil"
 }
@@ -119,7 +121,7 @@ func (L *ListaSimple) BuscarNodo(path string,nombre string) bool{
 	aux:=L.first
 
 	for aux!=nil{
-		if((aux.path==path) && (aux.nombre==nombre)){
+		if((aux.path == path) && (aux.nombre == nombre)){
 			return true
 		}
 		aux=aux.next
@@ -132,19 +134,21 @@ func (L *ListaSimple) EliminarNodo(id string) int{
 	aux:=L.first
 
 	temp_id:="vd"
-	temp_id+=aux.letra+strconv.Itoa(aux.num)
+	temp_id += string(aux.letra) + strconv.Itoa(aux.num)
 
-	if id==temp_id{
+	if id == temp_id {
 		L.first=aux.next
 		return 1
 	}else{
+		
 		var aux2 *NodoParticiones
+		//aux2:=nil
 
-		for aux!=nil{
-			tempId:="vd"
-			tempId+=aux.letra+strconv.Itoa(aux.num)
+		for aux!=nil {
+			temp_id = "vd"
+			temp_id += string(aux.letra) + strconv.Itoa(aux.num)
 			
-			if id==tempId{
+			if id == temp_id {
 				aux2.next=aux.next
 				return 1
 			}
@@ -166,11 +170,11 @@ func Ejecutar(){
 
 	ls:=ListaSimple{}
 	//ls.Insertar(&uno)
-	ls.Insertar( & NodoParticiones{path:"//mario",nombre:"yonathan",letra:"d",num:76} )
-	ls.Insertar( & NodoParticiones{path:"//cristan",nombre:"humberto",letra:"r",num:89} )
-	ls.Insertar( & NodoParticiones{path:"//lidia",nombre:"veronica",letra:"s",num:4524} )
-	ls.Insertar( & NodoParticiones{path:"//leonel",nombre:"esteban",letra:"a",num:678} )
-	ls.Insertar( & NodoParticiones{path:"//nicolas",nombre:"nicolas",letra:"t",num:326} )
+	ls.Insertar( & NodoParticiones{path:"//mario",nombre:"yonathan",letra:'d',num:76} )
+	ls.Insertar( & NodoParticiones{path:"//cristan",nombre:"humberto",letra:'r',num:89} )
+	ls.Insertar( & NodoParticiones{path:"//lidia",nombre:"veronica",letra:'s',num:4524} )
+	ls.Insertar( & NodoParticiones{path:"//leonel",nombre:"esteban",letra:'a',num:678} )
+	ls.Insertar( & NodoParticiones{path:"//nicolas",nombre:"nicolas",letra:'t',num:326} )
 	ls.Mostrar()
 	fmt.Println(ls.BuscarNumero("//mario","yonathan"))
 	fmt.Println(ls.BuscarNumero("//mario","yonathan"))

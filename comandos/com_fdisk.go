@@ -33,7 +33,7 @@ func FDISK(size int64,unit string,path string,tipo string,fit string,delete stri
 			fmt.Println(" Mensaje: La Modificacion del tamaño de una particon no acepta los parametros Delete y Size.")
 		}else{
 			fmt.Println(" EN QUITAR PARTICIONES ")
-			//Agregar_Quitar_Particiones(path,name,add,unit)
+			Agregar_Quitar_Particiones(path,name,add,unit)
 		}
 
 	}else if delete!=""{
@@ -513,11 +513,16 @@ func Realizar_Particion_Logica(path string,name string,size int64,fit string,uni
 
 }
 
-func Agregar_Quitar_Particiones(path string,name string,add int64,unit string){
+func Agregar_Quitar_Particiones(path string,name string,addi string,unit string){
 
 	
-/*	var size_total int64=0
+	var size_completo int64=0
 	var tipo string=""
+	var auxUnit byte;
+	var add int64=0
+	
+/*	if num,err:=strconv.ParseInt(addi,10,64);err==nil{    }else{ }
+	
 
 	if ( add > 0 ){
 		tipo="add"
@@ -527,13 +532,16 @@ func Agregar_Quitar_Particiones(path string,name string,add int64,unit string){
 		add=add*(-1)
 	}
 
-	if ( unit == "m" ){
-		size_total=(add*1024*1024)
-	}else if ( unit == "k" ){
-		size_total=(add*1024)
-	}else{
-		size_total=add
+
+	if ( unit == "b" ){
+		size_completo=size
+	}else if ( unit == "k" || unit == "" ){
+		size_completo=(size*1024)
+	}else if ( unit == "m"){
+		size_completo=(size*1024*1024)
 	}
+
+	
 */
 
 

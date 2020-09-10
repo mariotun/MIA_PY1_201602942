@@ -138,7 +138,8 @@ func ElegirComando(entrada string){
 
 		fmt.Println("size:",nsize)
 		fmt.Println(" path:"+npath+" name:"+nnamefd+" unit:"+nunit+" tipo:"+ntipo)
-		fmt.Println(" fit:"+nfit+" delete:"+ndelete+" add:"+nadd)
+		fmt.Println(" fit:"+nfit+" delete:"+ndelete)
+		fmt.Print("add:",nadd)
 		
 		if strings.HasPrefix(npath,"\"")==true{
 			npath=npath[1:len(npath)-1]
@@ -149,10 +150,22 @@ func ElegirComando(entrada string){
 		lexico.Parametros.Limpiar()
 
 	}else if ncomando=="mount"{
-		MOUNT()
+
+		npath:=lexico.Parametros.Get_Path()
+		nnamefd:=lexico.Parametros.Get_Namefd()
+
+		if strings.HasPrefix(npath,"\"")==true{
+			npath=npath[1:len(npath)-1]
+		}
+
+		MOUNT(npath,nnamefd)
+		
 		lexico.Parametros.Limpiar()
 
 	}else if ncomando=="unmount"{
+
+
+
 		UNMOUNT()
 		lexico.Parametros.Limpiar()
 

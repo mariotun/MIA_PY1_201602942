@@ -1,7 +1,10 @@
 
 package lexico
 
-import ("strings")
+import (
+	"strings"
+	//"strconv"
+	)
 
 type Tokenn struct {
 	pause string
@@ -108,7 +111,9 @@ func (t *Tokenn) Get_Delete() string{
 func (t *Tokenn) Set_Add(nadd string) {
 	
 	dato:=strings.Split(nadd,"->")
-	t.add = dato[1]
+
+	//if num,err:=strconv.ParseInt(dato[1],10,64);err==nil{  t.add = num }else{ }
+	t.add = dato[1]	
 }
 func (t *Tokenn) Get_Add() string{
 	return t.add
