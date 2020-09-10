@@ -13,13 +13,13 @@ import(
 func MOUNT(path string, name string)  {
 	fmt.Println("Dentro de la funcion mount")
 
-	
+	err,masterb:=Leer_MBR(path)
 	
 	 indicep:=buscar_particion_e(path,name)
 
 	 if ( indicep != -1) {
 
-		err,masterb:=Leer_MBR(path)
+		//err,masterb:=Leer_MBR(path)
 
 		if err != nil{
 			fmt.Println(" Error: No se pudo leer el disco, en el comando mount.")
@@ -37,7 +37,9 @@ func MOUNT(path string, name string)  {
 			}else{
 				num:=Lista.BuscarNumero(path,name)
 
-				Lista.Insertar(& NodoParticiones{path:path,nombre:name,letra:'d',num:num})
+				ltr:=rune(letra)
+
+				Lista.Insertar(& NodoParticiones{path:path,nombre:name,letra:byte(ltr),num:num})
 				
 				fmt.Println(" Mensaje: La particion se ha montano con exito. ")
 			}
@@ -51,8 +53,36 @@ func MOUNT(path string, name string)  {
 
 		indicep2:=buscar_particion_l(path,name)
 
-		if (){
+		if ( indicep2 != -1){
 
+			err2,ebr:=Leer_EBR(path,indicep2)
+
+			if ( err2 != nil ){
+				fmt.Println(" Error: No se encontro el disco. ")
+			}else{
+
+				ebr.Part_status='2'
+				Escribir_EBR(path,ebr)
+
+				letra2:=Lista.BuscarLetra(path,name)
+
+				if ( letra2 == -1){
+					fmt.Println(" Mensaje: La particion ya se encuentra montada. ")
+				}else{
+
+					ltr2:=rune(letra2)
+
+					num2:=Lista.BuscarNumero(path,name)
+					Lista.Insertar(& NodoParticiones{path:path,nombre:name,letra:byte(ltr2),num:num2})
+
+					fmt.Println(" Mensaje: La particion se ha montano con exito. ")
+				}
+
+
+			}
+
+		}else {
+			fmt.Println(" Error: La particion no se encuentra creada en el disco. ") 
 		}
 	 }
 
@@ -133,13 +163,13 @@ func buscar_particion_l(path string, name string) int64{
 
 					if(aux.Part_name == namee2){
 						//archivo2.Close()
-						return 1
+						return (aux.Part_start)
 					}
 					err2,aux=Leer_EBR(path,aux.Part_next)
 				}
 
-				if(aux.Part_name==namee2){
-					return 1
+				if( aux.Part_name == namee2 ){
+					return (aux.Part_start)
 				}
 				
 			}

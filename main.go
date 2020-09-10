@@ -46,7 +46,7 @@ func main()  {
 				fmt.Println("es la opcion 2")
 				//comandos.RMDISK()*/
 			case "1":
-				funciones.Ejecutar()
+				//funciones.Ejecutar()
 			case "exit":
 				salida=0
 			case "clear":

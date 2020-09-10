@@ -516,10 +516,10 @@ func Realizar_Particion_Logica(path string,name string,size int64,fit string,uni
 func Agregar_Quitar_Particiones(path string,name string,addi string,unit string){
 
 	
-	var size_completo int64=0
+/*	var size_completo int64=0
 	var tipo string=""
 	var auxUnit byte;
-	var add int64=0
+	var add int64=0*/
 	
 /*	if num,err:=strconv.ParseInt(addi,10,64);err==nil{    }else{ }
 	
