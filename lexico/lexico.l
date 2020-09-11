@@ -13,6 +13,7 @@ import (
 	"go/token"
 	"unicode"
 	"strconv"
+	"strings"
 	
 	
 	"container/list"
@@ -299,7 +300,7 @@ unmount			{ Parametros.Set_Comando(string(l.TokenBytes(nil))); return l.char(unm
 rep				{ Parametros.Set_Comando(string(l.TokenBytes(nil))); return l.char(rep) }
 
 size			{ /*Parametros.Set_Size(string(l.TokenBytes(nil)));*/ return l.char(sizee) }
-path			{ /*Parametros.Set_Path(string(l.TokenBytes(nil)));*/ return l.char(path) }
+"path"			{ /*Parametros.Set_Path(string(l.TokenBytes(nil)));*/ return l.char(path) }
 name			{ /*Parametros.Set_Name(string(l.TokenBytes(nil)));*/ return l.char(name) }
 unit			{ /*Parametros.Set_Unit(string(l.TokenBytes(nil)));*/ return l.char(unit) }
 "type"			{ /*Parametros.Set_Tipo(string(l.TokenBytes(nil)));*/ return l.char(typee)}
@@ -331,18 +332,26 @@ fit				{ return l.char(fit) }
 
 {identifier}	{ if (string(l.TokenBytes(nil))=="bf"||string(l.TokenBytes(nil))=="ff"||string(l.TokenBytes(nil))=="wf"){
 					Parametros.Set_Fit(string(l.TokenBytes(nil)))
+					return l.char(identificador)
 
 			     }else if (string(l.TokenBytes(nil))=="fast"||string(l.TokenBytes(nil))=="full"){
 					Parametros.Set_Delete(string(l.TokenBytes(nil)))
+					return l.char(identificador)
 
 			     }else if( string(l.TokenBytes(nil))=="mbr" || string(l.TokenBytes(nil))=="disk" || string(l.TokenBytes(nil))=="sb" ){
 					 Parametros.Set_NameGrafic(string(l.TokenBytes(nil)))
+					 return l.char(identificador)
 
-				 }else{
+				 }else if ( strings.HasPrefix(string(l.TokenBytes(nil)), "vd") == true ){
+					 Parametros.Set_IDGrap(string(l.TokenBytes(nil)))
+					 return l.char(identificador)
+
+				 } else{
 					Parametros.Set_Namefd(string(l.TokenBytes(nil))) 
+					return l.char(identificador)
 				} 
 				
-				 return l.char(identificador) }
+							 }
 
 
 %%

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"go/token"
 	"strconv"
+	"strings"
 	"unicode"
 
 	"container/list"
@@ -1915,7 +1916,7 @@ yyrule10: // size
 		}
 		goto yystate0
 	}
-yyrule11: // path
+yyrule11: // "path"
 	{
 		{ /*Parametros.Set_Path(string(l.TokenBytes(nil)));*/
 			return l.char(path)
@@ -2053,16 +2054,23 @@ yyrule31: // {identifier}
 		{
 			if string(l.TokenBytes(nil)) == "bf" || string(l.TokenBytes(nil)) == "ff" || string(l.TokenBytes(nil)) == "wf" {
 				Parametros.Set_Fit(string(l.TokenBytes(nil)))
+				return l.char(identificador)
 			} else if string(l.TokenBytes(nil)) == "fast" || string(l.TokenBytes(nil)) == "full" {
 				Parametros.Set_Delete(string(l.TokenBytes(nil)))
+				return l.char(identificador)
 			} else if string(l.TokenBytes(nil)) == "mbr" || string(l.TokenBytes(nil)) == "disk" || string(l.TokenBytes(nil)) == "sb" {
 				Parametros.Set_NameGrafic(string(l.TokenBytes(nil)))
+				return l.char(identificador)
+			} else if strings.HasPrefix(string(l.TokenBytes(nil)), "vd") == true {
+				Parametros.Set_IDGrap(string(l.TokenBytes(nil)))
+				return l.char(identificador)
 			} else {
 				Parametros.Set_Namefd(string(l.TokenBytes(nil)))
+				return l.char(identificador)
 			}
 
-			return l.char(identificador)
 		}
+		goto yystate0
 	}
 	panic("unreachable")
 

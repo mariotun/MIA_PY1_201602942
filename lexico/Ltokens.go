@@ -19,6 +19,7 @@ type Tokenn struct {
 	delete string
 	add string
 	namegrafic string
+	idgrap string
 }
 
 func (t *Tokenn) Limpiar(){
@@ -34,6 +35,7 @@ func (t *Tokenn) Limpiar(){
 	t.delete=""
 	t.add=""
 	t.namegrafic=""
+	t.idgrap=""
 }
 
 //---------------------------------------------------------------
@@ -125,4 +127,12 @@ func (t *Tokenn) Set_NameGrafic(namegra string) {
 }
 func (t *Tokenn) Get_NameGrafic() string{
 	return t.namegrafic
+}
+//--------------------------------------------------------------
+func (t *Tokenn) Set_IDGrap(nidgrap string) {
+	t.idgrap=nidgrap
+	
+}
+func (t *Tokenn) Get_IDGrap() string{
+	return t.idgrap
 }

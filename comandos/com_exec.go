@@ -95,7 +95,10 @@ func Crear_Carpeta(directorio string){
 func ElegirComando(entrada string){
 
 	ncomando:=lexico.Parametros.Get_Comando()
-	fmt.Println("--->"+ncomando)
+	fmt.Println("comando--->"+ncomando)
+
+	
+
 
 	if ncomando=="pause"{
 		bufio.NewReader(os.Stdin).ReadBytes('\n') 
@@ -172,13 +175,18 @@ func ElegirComando(entrada string){
 	}else if ncomando=="rep"{
 		npath:=lexico.Parametros.Get_Path()
 		nnamegrafic:=lexico.Parametros.Get_NameGrafic()
+		nidgrap:=lexico.Parametros.Get_IDGrap()
+
+		if strings.HasPrefix(npath,"\"")==true{
+			npath=npath[1:len(npath)-1]
+		}
 		
-		REP(npath,nnamegrafic)
+		REP(npath,nnamegrafic,nidgrap)
 		lexico.Parametros.Limpiar()
-	}
-	/*else{
+	
+	}else{
 		fmt.Println(" (*) No hay un comando con ese combre")
-	}*/
+	}
 	
 
 }
