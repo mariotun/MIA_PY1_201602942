@@ -3,6 +3,7 @@ package comandos
 import(
 	"fmt"
 	"strings"
+	"strconv"
 	//"io/ioutil"
 	//"log"
 	"os"
@@ -50,15 +51,15 @@ func REP(path string,ngrafica string,nidgrap string)  {
 
 func crearArchivo(path string) {
 	//Verifica que el archivo existe
-	var _, err = os.Stat(path)
+	//var _, err = os.Stat(path)
 	//Crea el archivo si no existe
-	if os.IsNotExist(err) {
+	//if os.IsNotExist(err) {
 	  var file, err = os.Create(path)
 	  if existeError(err) {
 		return
 	  }
 	  defer file.Close()
-	}
+	//}
 	fmt.Println("File Created Successfully", path)
   }
 
@@ -104,7 +105,8 @@ func direccion_carpeta(path string) string{
 
 func grafica_disco(ubicacion string,path string,extencion string){
 
-	err,masterb:=Leer_MBR(path)	
+	err,masterb:=Leer_MBR(ubicacion)	
+
 	var cadena string=""
 
 	if ( err != nil){
@@ -114,8 +116,9 @@ func grafica_disco(ubicacion string,path string,extencion string){
 		total:=masterb.Mbr_tamano
 		var usado int64
 
-		ru:=strings.Split(path, ".") 
-		crearArchivo(ru[0]+".dot")
+		//ru:=strings.Split(path, ".") 
+		//crearArchivo(ru[0]+".dot")
+	//	crearArchivo("disco.dot")
 
 		cadena+="digraph G{\n\n"
 		cadena+="  tbl [\n    shape=box\n    label=<\n"
@@ -132,42 +135,44 @@ func grafica_disco(ubicacion string,path string,extencion string){
 				usado += porcentaje_real
 				
 				if (masterb.Mbr_partition[i].Part_status != '1') {
-					if (masterb.Mbr_partition[i].Part_type == 'P'){
+					if (masterb.Mbr_partition[i].Part_type == 'p'){
 
-						cadena+="  <td height=\"200\" width="+"\""+string(porcentaje_aux)+"\""+">PRIMARIA <br/>"+string(porcentaje_real)+"%"+"</td>\n"
+						cadena+="  <td height=\"200\" width="+"\""+strconv.FormatInt(porcentaje_aux,10)+"\""+">PRIMARIA <br/>"+strconv.FormatInt(porcentaje_real,10)+"%"+"</td>\n"
 
 						if (i != 3 ) {
+							fmt.Println("UNO UNO UNO")
 							part1:=masterb.Mbr_partition[i].Part_start + masterb.Mbr_partition[i].Part_size
 							part2:=masterb.Mbr_partition[i+1].Part_start
 							if (masterb.Mbr_partition[i+1].Part_start != -1){
+								fmt.Println("LIBRE1:",(part2 - part1))
 								if ( (part2-part1)!=0 ){//existe la fragmentacion
 									fragmentacion2:=part2-part1
-									porcentaje_real2:=(fragmentacion2*100)/total
-									porcentaje_aux2:=(porcentaje_real*500)/100
+									porcentaje_real:=(fragmentacion2*100)/total
+									porcentaje_aux:=(porcentaje_real*500)/100
 
-									cadena+="<td height=\"200\" width="+"\""+string(porcentaje_aux2)+"\""+"> LIBRE <br/>"+string(porcentaje_real2)+"%"+"</td>\n"
+									cadena+="<td height=\"200\" width="+"\""+strconv.FormatInt(porcentaje_aux,10)+"\""+"> LIBRE <br/>"+strconv.FormatInt(porcentaje_real,10)+"%"+"</td>\n"
 								}
 							}
 						}else{
 							part11:=masterb.Mbr_partition[i].Part_start + masterb.Mbr_partition[i].Part_size
 							tam_mbr:=total+int64(binary.Size(masterb))
-
-							if ( (tam_mbr-part11) != 0){
+								fmt.Println("LIBRE2:",(tam_mbr - part11))
+							if ( (tam_mbr - part11) != 0){
 								libre:=(tam_mbr-part11)+int64(binary.Size(masterb))
 								porcentaje_reall:=(libre*100)/total
 								porcentaje_auxx:=(porcentaje_reall*500)/100
 
-								cadena+="<td height=\"200\" width="+"\""+string(porcentaje_auxx)+"\""+"> LIBRE <br/>"+string(porcentaje_reall)+"%"+"</td>\n"
+								cadena+="<td height=\"200\" width="+"\""+strconv.FormatInt(porcentaje_auxx,10)+"\""+"> LIBRE <br/>"+strconv.FormatInt(porcentaje_reall,10)+"%"+"</td>\n"
 
 							}
 						}
 
 					}else{//es una extendida
 
-						cadena+="  <td  height=\"200\" width=\""+string(porcentaje_real)+"\">\n     <table border=\"0\"  height=\"200\" WIDTH=\""+string(porcentaje_real)+"\" cellborder=\"1\">\n"
+						cadena+=" \n\n\n <td  height=\"200\" width=\""+strconv.FormatInt(porcentaje_real,10)+"\">\n     <table border=\"0\"  height=\"200\" WIDTH=\""+strconv.FormatInt(porcentaje_real,10)+"\" cellborder=\"1\">\n"
 						cadena+="  <tr>  <td height=\"60\" colspan=\"15\"> EXTENDIDA </td>  </tr>\n     <tr>\n"
 
-						err2,ebr:=Leer_EBR(path,masterb.Mbr_partition[i].Part_start)
+						err2,ebr:=Leer_EBR(ubicacion,masterb.Mbr_partition[i].Part_start)
 
 						if ( err2 != nil ){
 							fmt.Println(" Error: No se pudo leer el EBR al intentar graficar. ")
@@ -186,29 +191,42 @@ func grafica_disco(ubicacion string,path string,extencion string){
 									if (porcentaje_real != 0){
 										if ( aux.Part_status != '1'){
 											cadena+=" <td height=\"140\"> EBR </td>\n"
-											cadena+=" <td height=\"140\">LOGICA<br/>"+string(porcentaje_real)+"%"+"</td>\n"
+											cadena+=" <td height=\"140\">LOGICA<br/>"+strconv.FormatInt(porcentaje_real,10)+"%"+"</td>\n"
 										
 										}else{//espacion en disco no asignado
-											cadena+=" <td height=\"150\">LIBRE 1 <br/>"+string(porcentaje_real)+"%"+"</td>\n"
+											cadena+=" <td height=\"150\">LIBRE 1 <br/>"+strconv.FormatInt(porcentaje_real,10)+"%"+"</td>\n"
 										}
 
-										if ( aux.Part_next == -1){
+										/*if ( aux.Part_next == -1){
 											parcial=(masterb.Mbr_partition[i].Part_start + masterb.Mbr_partition[i].Part_size) - ( aux.Part_start + aux.Part_size)
 											porcentaje_real=(parcial*100)/total
 											
 											if ( porcentaje_real != 0) {
-												cadena+="<td height=\"150\">LIBRE 2<br/>"+string(porcentaje_real)+"%"+"</td>\n"
+												cadena+="<td height=\"150\">LIBRE 2<br/>"+strconv.FormatInt(porcentaje_real,10)+"%"+"</td>\n"
 											}
 											break
-										}/*else{
+										}*/
+										/*else{
 											err2,aux=Leer_EBR(path,aux.Part_next)
 										}*/
 
 									}
 
-									err2,aux=Leer_EBR(path,aux.Part_next)
+									err2,aux=Leer_EBR(ubicacion,aux.Part_next)
 
 								}//final del for para recorre las logicas
+
+								/*if ( aux.Part_next == -1){
+									parcial=(masterb.Mbr_partition[i].Part_start + masterb.Mbr_partition[i].Part_size) - ( aux.Part_start + aux.Part_size)
+									porcentaje_real=(parcial*100)/total
+									
+									if ( porcentaje_real != 0) {
+										cadena+="<td height=\"150\">LIBRE 2<br/>"+strconv.FormatInt(porcentaje_real,10)+"%"+"</td>\n"
+										//cadena+="\n </tr> \n </table> \n </td> \n\n"
+									}
+									//break
+								}*/
+								
 
 								parcial=aux.Part_size
 								porcentaje_real=(parcial*100)/total
@@ -216,10 +234,10 @@ func grafica_disco(ubicacion string,path string,extencion string){
 									if (porcentaje_real != 0){
 										if ( aux.Part_status != '1'){
 											cadena+=" <td height=\"140\"> EBR </td>\n"
-											cadena+=" <td height=\"140\">LOGICA<br/>"+string(porcentaje_real)+"%"+"</td>\n"
+											cadena+=" <td height=\"140\">LOGICA<br/>"+strconv.FormatInt(porcentaje_real,10)+"%"+"</td>\n"
 										
 										}else{//espacion en disco no asignado
-											cadena+=" <td height=\"150\">LIBRE 1 <br/>"+string(porcentaje_real)+"%"+"</td>\n"
+											cadena+=" <td height=\"150\">LIBRE 1 <br/>"+strconv.FormatInt(porcentaje_real,10)+"%"+"</td>\n"
 										}
 
 										if ( aux.Part_next == -1){
@@ -227,9 +245,9 @@ func grafica_disco(ubicacion string,path string,extencion string){
 											porcentaje_real=(parcial*100)/total
 											
 											if ( porcentaje_real != 0) {
-												cadena+="<td height=\"150\">LIBRE 2<br/>"+string(porcentaje_real)+"%"+"</td>\n"
+												cadena+="<td height=\"150\">LIBRE 2<br/>"+strconv.FormatInt(porcentaje_real,10)+"%"+"</td>\n"
 											}
-											break
+											//break
 										}
 
 									}
@@ -237,7 +255,7 @@ func grafica_disco(ubicacion string,path string,extencion string){
 
 
 							}else{
-								cadena+=" <td height=\"140\"> Ocupado"+string(porcentaje_real)+"%"+"</td>"
+								cadena+=" <td height=\"140\"> Ocupado"+strconv.FormatInt(porcentaje_real,10)+"%"+"</td>"
 							}
 
 							cadena+="</tr>\n </table>\n </td>\n"
@@ -253,7 +271,7 @@ func grafica_disco(ubicacion string,path string,extencion string){
 										porcentaje_real:=(fragmentacion*100)/total
 										porcentaje_aux:=(porcentaje_real*500)/100
 
-										cadena+="   <td height=\"200\" width=\""+string(porcentaje_aux)+"\">LIBRE<br/>"+string(porcentaje_real)+"%"+"</td>\n"
+										cadena+="   <td height=\"200\" width=\""+strconv.FormatInt(porcentaje_aux,10)+"\">LIBRE<br/>"+strconv.FormatInt(porcentaje_real,10)+"%"+"</td>\n"
 									}
 								}
 							}else{
@@ -265,7 +283,7 @@ func grafica_disco(ubicacion string,path string,extencion string){
 									porcentaje_real:=(libre*100)/total
 									porcentaje_aux:=(porcentaje_real*500)/100
 
-									cadena+="   <td height=\"200\" width=\""+string(porcentaje_aux)+"\">LIBRE<br/>"+string(porcentaje_real)+"%"+"</td>\n"
+									cadena+="   <td height=\"200\" width=\""+strconv.FormatInt(porcentaje_aux,10)+"\">LIBRE<br/>"+strconv.FormatInt(porcentaje_real,10)+"%"+"</td>\n"
 								}
 
 							}
@@ -273,13 +291,13 @@ func grafica_disco(ubicacion string,path string,extencion string){
 						}
 
 
-
+									
 
 
 					}//final del tercer if 
 
 				}else{//es el espacio que no estea asignado
-					cadena+="     <td height=\"200\" width="+"\""+string(porcentaje_aux)+"\""+">LIBRE <br/>"+string(porcentaje_real)+"%"+"</td>\n"
+					cadena+="     <td height=\"200\" width="+"\""+strconv.FormatInt(porcentaje_aux,10)+"\""+">LIBRE <br/>"+strconv.FormatInt(porcentaje_real,10)+"%"+"</td>\n"
 				
 				}//final del segundo if
 
@@ -290,20 +308,16 @@ func grafica_disco(ubicacion string,path string,extencion string){
 		cadena+="</tr> \n  </table>  \n>];\n\n}"
 
 
+		crearArchivo("/home/graficas/disco.dot")
+		escribeArchivo("/home/graficas/disco.dot",cadena)
 
+		_,err:= exec.Command("dot","/home/graficas/disco.dot","-o","/home/graficas/disco.png","-Tpng").Output()
+		if (err!=nil){ fmt.Println(" error con el comando1")}
 
+		_,err2:= exec.Command("xdg-open","/home/graficas/disco.png").Output()
+		if (err2!=nil){ fmt.Println(" error con el comando2")}
 
-
-
-
-
-
-
-
-
-
-
-
+		fmt.Println("Mensaje: Se genero el repoorte del disco correctamente. ")
 
 	}
 
