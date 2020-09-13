@@ -101,7 +101,7 @@ func Escribir_Archivo(size int64,path string,name string,unit string){
 	fmt.Println("hora-fecha:",string(DiscoDuro.Mbr_fecha_creacion[:]))*/
 
 	for i := 0; i < 4; i++ {
-		fmt.Println(" i: ",i)
+		//fmt.Println(" i: ",i)
 		DiscoDuro.Mbr_partition[i].Part_status='1'//es 1 porque esta disponible ,0 cuando ya esta ocupado
 		DiscoDuro.Mbr_partition[i].Part_type='0'
 		DiscoDuro.Mbr_partition[i].Part_fit='0'
@@ -121,6 +121,7 @@ func Escribir_Archivo(size int64,path string,name string,unit string){
 
 	archivo.Close()
 	fmt.Println("--Mensaje: Se creo el disco correctamente.")
+	
 
 	}else{ fmt.Println(" Error: El disco a crear ya existe en la carpeta. ")}
 	

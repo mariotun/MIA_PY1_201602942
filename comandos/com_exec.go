@@ -95,6 +95,7 @@ func Crear_Carpeta(directorio string){
 func ElegirComando(entrada string){
 
 	ncomando:=lexico.Parametros.Get_Comando()
+	fmt.Println("----------------------------------------------------------------------------")
 	fmt.Println("comando--->"+ncomando)
 
 	

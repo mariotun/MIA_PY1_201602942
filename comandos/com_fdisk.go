@@ -40,7 +40,7 @@ func FDISK(size int64,unit string,path string,tipo string,fit string,delete stri
 		if ( size>0 || add!="" || fit!="" || tipo!=""){
 			fmt.Println(" Mensaje: La Eliminacion de una particon no acepta los parametros Size,Add,Fit y Tipo.")
 		}else{
-			fmt.Println(" ¿Esta seguro que desea eliminar la particion? S(si)/N(no).")
+			fmt.Println(" ¿Esta seguro que desea eliminar la PARTICION(fdisk)? S(si)/N(no).")
 			fmt.Print(">> ")
 			reader:=bufio.NewReader(os.Stdin)
 			entrada,_:=reader.ReadString('\n')//leer hasta el separador de saldo de linea
@@ -50,7 +50,7 @@ func FDISK(size int64,unit string,path string,tipo string,fit string,delete stri
 				fmt.Println(" EN ELIMINAR PARTICIONES")
 				Eliminar_Particion(path,name,delete)
 			}else if strings.ToLower(eleccion)=="n"{
-				fmt.Println(" Mensaje: No se elimino ninguna particion.")
+				fmt.Println(" Mensaje: No se elimino ninguna PARTICION(fdisk).")
 			
 			}else{
 				fmt.Println(" Mensaje: Opcion Incorrecta")
@@ -106,7 +106,7 @@ func ExisteArchivo(name string) bool {
 	return false*/
 	filename := name
 	if _, err := os.Stat(filename); os.IsNotExist(err) {
-		fmt.Println("file does not exist")
+		fmt.Println(" Mensaje: Se va a crear el archivo porque no existe.")
 		return false
 	}else{
 	return true }
@@ -132,7 +132,7 @@ func Realizar_Particion_Primaria(path string,name string,size int64,fit string,u
 	}else if ( unit == "k" || unit == "" ){
 		size_completo=(size*1024)
 	}else if ( unit == "m" ){
-		size_completo=(size*1024*2024)
+		size_completo=(size*1024*1024)
 	}
 
 
