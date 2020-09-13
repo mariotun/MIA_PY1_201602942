@@ -394,7 +394,7 @@ func Realizar_Particion_Logica(path string,name string,size int64,fit string,uni
 	if err !=nil{
 		fmt.Println(" Error: El disco no existe.")
 		//archivo.Close()
-		panic(err)
+		//panic(err)
 
 	}else {
 		var numextendida int=-1
@@ -521,7 +521,7 @@ func Agregar_Quitar_Particiones(path string,name string,addn string,unit string)
 	//var auxUnit byte;
 	//var add int64=0*/
 	
-	add, err := strconv.ParseInt(addn, 10, 64) 
+	add, _:= strconv.ParseInt(addn, 10, 64) 
 
 	if ( add > 0 ){
 		tipo="add"
@@ -533,23 +533,258 @@ func Agregar_Quitar_Particiones(path string,name string,addn string,unit string)
 
 
 	if ( unit == "b" ){
-		size_completo=size
+		size_completo=add
 	}else if ( unit == "k" || unit == "" ){
-		size_completo=(size*1024)
+		size_completo=(add*1024)
 	}else if ( unit == "m"){
-		size_completo=(size*1024*1024)
+		size_completo=(add*1024*1024)
 	}
 
+
+	err,masterb:=Leer_MBR(path)
+
+	if ( err != nil ) {
+		fmt.Println(" Error: El disco no existe (add). ")
+	}else{
+
+		mount:=Lista.BuscarNodo(path,name)
+
+		if ( !mount ){
+			var index int=-1
+			var index_e int=-1
+			var fextendida bool=false
+			var namen [16]byte
+			copy(namen[:],name)
+
+
+			for i:=0 ; i < 4 ; i++ {
+
+				if ( masterb.Mbr_partition[i].Part_name == namen){
+					index=i
+					if ( masterb.Mbr_partition[i].Part_type == 'e'){
+						fextendida=true
+					}
+					break
+				}else if ( masterb.Mbr_partition[i].Part_type == 'e'){
+					index_e=i
+				}
+			}
+
+			if ( index != -1) {
+				if ( !fextendida){//particiones primarias
+					if ( tipo == "add"){
+						fmt.Println( " en primarias")
+						if ( index != 3) {
+							fmt.Println( " en != 3")
+							p1:=masterb.Mbr_partition[index].Part_start + masterb.Mbr_partition[index].Part_size
+							p2:=masterb.Mbr_partition[index+1].Part_start
+
+							if ( (p2 - p1) != 0 ){
+								fragmentacion:=p2-p1
+								if ( fragmentacion >= size_completo ){
+									masterb.Mbr_partition[index].Part_size=masterb.Mbr_partition[index].Part_size + size_completo
+									Escribir_MBR(path,masterb)
+									fmt.Println(" Mensaje: Se acaba de agregar espacio a la particion correctamente. ")
+								}else{
+									fmt.Println(" Error: No se puede agregar espacio a la particion , porque no hay suficiente espacio disponible en el disco.")
+								}
+							}else{
+								fmt.Println( " en este else")
+								if (masterb.Mbr_partition[index + 1].Part_status == '0'){
+                                    if (masterb.Mbr_partition[index + 1].Part_size >= size_completo){
+                                        masterb.Mbr_partition[index].Part_size = masterb.Mbr_partition[index].Part_size + size_completo
+                                        masterb.Mbr_partition[index + 1].Part_size = (masterb.Mbr_partition[index + 1].Part_size - size_completo)
+                                        masterb.Mbr_partition[index + 1].Part_start = masterb.Mbr_partition[index + 1].Part_start + size_completo
+                                      
+									  	Escribir_MBR(path,masterb)
+                                        fmt.Println(" Mensaje: Se acaba de agregar espacio a la particion correctamente. ")
+                                    }else{
+										fmt.Println(" Error: No se puede agregar espacio a la particion , porque no hay suficiente espacio disponible en el disco.")
+                                    }
+                                }
+
+							}
+
+						}else{
+							fmt.Println( " no es  != 3")
+							p := masterb.Mbr_partition[index].Part_start + masterb.Mbr_partition[index].Part_size;
+                            total := masterb.Mbr_tamano + int64(binary.Size(masterb))
+                            if ((total-p) != 0){
+                                fragmentacion := total - p;
+                                if (fragmentacion >= size_completo){
+                                    masterb.Mbr_partition[index].Part_size = masterb.Mbr_partition[index].Part_size + size_completo
+									
+									Escribir_MBR(path,masterb)
+									fmt.Println(" Mensaje: Se acaba de agregar espacio a la particion correctamente. ")
+									}else{
+										fmt.Println(" Error: No se puede agregar espacio a la particion , porque no hay suficiente espacio disponible en el disco.")
+                                }
+                            }else{
+                                fmt.Println(" Error: No se puede agregar espacio a la particion , porque no hay suficiente espacio disponible en el disco.")
+                            }
+							
+						}
+
+					}else{//quitar espacio en el disco
+
+						if (size_completo >= masterb.Mbr_partition[index].Part_size){
+                            fmt.Println(" ERROR: no es posible quitarle esta cantidad de espacio a la particion porque la borraria. ")
+                        }else{
+                            masterb.Mbr_partition[index].Part_size = masterb.Mbr_partition[index].Part_size - size_completo
+							
+							Escribir_MBR(path,masterb)
+							fmt.Println(" Mensaje: Se quito espacio a la particion de manera exitosa. ")
+							
+                        }
+
+					}
+
+				}else{//extendidas
+
+					if (tipo == "add"){//Agregar
+                        //Verificar que exista espacio libre a la derecha
+                        if (index!=3){
+                             p1 := masterb.Mbr_partition[index].Part_start + masterb.Mbr_partition[index].Part_size
+                             p2 := masterb.Mbr_partition[index+1].Part_start
+                            if ( (p2 - p1) != 0 ){//Hay fragmentacion
+                                 fragmentacion := p2-p1
+                                if (fragmentacion >= size_completo){
+									masterb.Mbr_partition[index].Part_size = masterb.Mbr_partition[index].Part_size + size_completo
+									
+									Escribir_MBR(path,masterb)
+									fmt.Println(" Mensaje: Se acaba de agregar espacio a la particion correctamente. ")
+                                   
+                                }else{
+									fmt.Println(" Error: No se puede agregar espacio a la particion , porque no hay suficiente espacio disponible en el disco.")
+                                }
+                            }else{
+                                if ( masterb.Mbr_partition[index + 1].Part_status == '1' ){
+                                    if ( masterb.Mbr_partition[index + 1].Part_size >= size_completo ){
+                                        masterb.Mbr_partition[index].Part_size = masterb.Mbr_partition[index].Part_size + size_completo
+                                        masterb.Mbr_partition[index + 1].Part_size = (masterb.Mbr_partition[index + 1].Part_size - size_completo)
+                                        masterb.Mbr_partition[index + 1].Part_start= masterb.Mbr_partition[index + 1].Part_start + size_completo
+									   
+										Escribir_MBR(path,masterb)
+										fmt.Println(" Mensaje: Se acaba de agregar espacio a la particion correctamente. ")
+									
+                                    }else{
+                                        fmt.Println(" Error: No se puede agregar espacio a la particion , porque no hay suficiente espacio disponible en el disco.")
+                                    }
+                                }
+                            }
+                        }else{
+                             p := masterb.Mbr_partition[index].Part_start + masterb.Mbr_partition[index].Part_size;
+                             total := masterb.Mbr_tamano + int64(binary.Size(masterb))
+                            if ((total-p) != 0){//Hay fragmentacion
+                                 fragmentacion := total - p;
+                                if (fragmentacion >= size_completo){
+                                    masterb.Mbr_partition[index].Part_size = masterb.Mbr_partition[index].Part_size + size_completo
+									
+									Escribir_MBR(path,masterb)
+									fmt.Println(" Mensaje: Se acaba de agregar espacio a la particion correctamente. ")
+
+                                }else{
+                                    fmt.Println(" Error: No se puede agregar espacio a la particion , porque no hay suficiente espacio disponible en el disco.")
+                                }
+                            }else{
+                                fmt.Println(" Error: No se puede agregar espacio a la particion , porque no hay suficiente espacio disponible en el disco.")
+                            }
+                        }
+                    }else{//Quitar espacio
+                        //Que no borre la particion
+                        if (size_completo >= masterb.Mbr_partition[index_e].Part_size){
+							fmt.Println(" ERROR: no es posible quitarle esta cantidad de espacio a la particion porque la borraria. ")
+                           
+                        }else{
+
+							err,ebr:=Leer_EBR(path,masterb.Mbr_partition[index_e].Part_start)
+
+							if ( err != nil){
+								fmt.Println(" Error: No se puedo leer el EBR (add)")
+							
+							}else{
+
+								var aux estructuras.EbrStr
+								aux=ebr
+
+								for (aux.Part_next != -1) {
+									err,aux=Leer_EBR(path,aux.Part_next)
+								}
+
+								ultimaLogica := aux.Part_start + aux.Part_size
+								aux2 := (masterb.Mbr_partition[index_e].Part_start + masterb.Mbr_partition[index_e].Part_size) - size_completo
+
+								if (aux2 > ultimaLogica){//No toca ninguna logica
+
+									masterb.Mbr_partition[index_e].Part_size = masterb.Mbr_partition[index_e].Part_size - size_completo
+
+									Escribir_MBR(path,masterb)
+									fmt.Println(" Mensaje: Se quito espacio a la particion de manera exitosa. ")
+
+								}else{
+									fmt.Println(" ERROR: si quita ese espacio danaria una logica.")
+								}
+
+							}
+
+
+                        }
+					}
+					
+
+				}
+
+			}else{//particiones logicas
+
+
+				if ( index_e != -1){
+                     logica := buscarParticionL(path, name);
+                    if (logica != -1){
+                        if (tipo == "add"){
+
+							err,_:=Leer_EBR(path,logica)
+							if ( err != nil ){
+								fmt.Println(" Error: NO se pudo leer el EBR. ")
+							}
+                            
+
+                        }else{//Quitar
+                            //Verificar que no la elimine
+                            err,ebr:=Leer_EBR(path,logica)
+							if ( err != nil ){
+								fmt.Println(" Error: NO se pudo leer el EBR. ")
+							}else{
+
+                            if (size_completo >= ebr.Part_size){
+                                fmt.Println(" ERROR: si quita ese espacio eliminaria la logica.")
+                            }else{
+								ebr.Part_size = ebr.Part_size - size_completo
+								
+								Escribir_EBR(path,ebr)
+								fmt.Println(" Mensaje: Se quito espacio a la particion de manera exitosa. ")
+                                
+                            }
+							
+							}
+						}
+					
+						
+                    }else{
+                        fmt.Println(" ERROR: no se encuentra la particion.")
+                    }
+                }else{
+                    fmt.Println(" ERROR: no se encuentra la particion a redimensionar. ")
+                }
+
+			}
+
+		}else{
+			fmt.Println(" Error: Primero se tiene que desmontar la particion  para poder redimensionar.")
+		}
+
+
+	}
 	
-
-
-
-	
-
-
-
-
-
 
 
 }
@@ -591,7 +826,7 @@ func ParticionExiste(path string, name string) bool{
 			if err2 != nil {
 				fmt.Println(" Error: No se pudo leer el EBR.")
 				//archivo2.Close()
-				panic(err)
+				//panic(err)
 			}else{
 
 				var namee2 [16]byte
@@ -619,6 +854,63 @@ func ParticionExiste(path string, name string) bool{
 	}
 	//archivo.Close()
 	return false
+}
+
+
+func buscarParticionL(path string , name string) int64{
+
+	err,masterb:=Leer_MBR(path)
+
+	if ( err != nil){
+		fmt.Println(" Error: NO se pudo leer el disco .")
+	}else{
+
+		var extendida int=-1
+
+		for i:=0 ; i < 4 ; i++ {
+			
+			if ( masterb.Mbr_partition[i].Part_type == 'e' ){
+				extendida=i
+				break
+			}
+		}
+
+		if ( extendida != -1){
+
+			err2,ebr:=Leer_EBR(path,masterb.Mbr_partition[extendida].Part_start)
+
+			if ( err2 != nil ){
+				fmt.Println(" Error: No se pudo el EBR")
+			}else{
+
+				var namee2 [16]byte
+				copy(namee2[:],name)
+
+				var aux estructuras.EbrStr
+				aux=ebr
+
+				for ( aux.Part_next != -1 ) {
+
+					if(aux.Part_name == namee2){
+						//archivo2.Close()
+						return (aux.Part_start)
+					}
+					err2,aux=Leer_EBR(path,aux.Part_next)
+				}
+
+				if ( aux.Part_next == -1){
+					return (aux.Part_start)
+				}
+
+
+			}
+
+
+		}
+
+	}
+	
+	return -1
 }
 
 

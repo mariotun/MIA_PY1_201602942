@@ -57,8 +57,8 @@ func Leer_MBR(path string) (error,estructuras.MbrStr){
 		log.Fatal(" binary.Read failed", err)//AQUI SALE EL MENSAJE DEL ERROR 
 	}
 	
-	fmt.Println(m)
-	fmt.Printf("Cadena: %s\n",m.Mbr_fecha_creacion)
+	//fmt.Println(m)
+	//fmt.Printf("Cadena: %s\n",m.Mbr_fecha_creacion)
 
 	return err,m
 	

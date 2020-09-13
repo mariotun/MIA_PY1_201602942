@@ -15,11 +15,11 @@ import(
 func Exec(ruta string)  {
 	fmt.Println("Dentro de la funcion exec")
 	i:=0
-	archivo,error:=os.Open(ruta)
+	archivo,error:=os.OpenFile(ruta,os.O_RDWR,0777)
 
 	//fmt.Println("iiiii"+ruta)
-	if error!=nil{
-		fmt.Println("Hubo un error al leer el archivo")
+	if error !=nil{
+		fmt.Println("Hubo un error al leer el archivo: ",error)
 	}
 
 	scanner:=bufio.NewScanner(archivo)
