@@ -4,6 +4,7 @@ import(
 	"fmt"
 	"strings"
 	"strconv"
+	//"bytes"
 	//"io/ioutil"
 	//"log"
 	"os"
@@ -103,6 +104,20 @@ func direccion_carpeta(path string) string{
 }
 
 
+func GoString(c []byte) string {
+    n := -1
+    for i, b := range c {
+        if b == 0 {
+            break
+        }
+        n = i
+    }
+    return string(c[:n+1])
+}
+
+
+
+
 func grafica_disco(ubicacion string,path string,extencion string){
 
 	err,masterb:=Leer_MBR(ubicacion)	
@@ -136,8 +151,9 @@ func grafica_disco(ubicacion string,path string,extencion string){
 				
 				if (masterb.Mbr_partition[i].Part_status != '1') {
 					if (masterb.Mbr_partition[i].Part_type == 'p'){
-
-						cadena+="  <td height=\"200\" width="+"\""+strconv.FormatInt(porcentaje_aux,10)+"\""+">PRIMARIA <br/>"+strconv.FormatInt(porcentaje_real,10)+"%"+"</td>\n"
+						
+						nam:=GoString(masterb.Mbr_partition[i].Part_name[:])
+						cadena+="  <td height=\"200\" width="+"\""+strconv.FormatInt(porcentaje_aux,10)+"\""+">PRIMARIA <br/>"+nam+"<br/>"+strconv.FormatInt(porcentaje_real,10)+"%"+"</td>\n"
 
 						if (i != 3 ) {
 							fmt.Println("UNO UNO UNO")
@@ -168,9 +184,9 @@ func grafica_disco(ubicacion string,path string,extencion string){
 						}
 
 					}else{//es una extendida
-
+						nam:=GoString(masterb.Mbr_partition[i].Part_name[:])
 						cadena+=" \n\n\n <td  height=\"200\" width=\""+strconv.FormatInt(porcentaje_real,10)+"\">\n     <table border=\"0\"  height=\"200\" WIDTH=\""+strconv.FormatInt(porcentaje_real,10)+"\" cellborder=\"1\">\n"
-						cadena+="  <tr>  <td height=\"60\" colspan=\"15\"> EXTENDIDA </td>  </tr>\n     <tr>\n"
+						cadena+="  <tr>  <td height=\"60\" colspan=\"15\"> EXTENDIDA <br/>"+nam+" </td>  </tr>\n     <tr>\n"
 
 						err2,ebr:=Leer_EBR(ubicacion,masterb.Mbr_partition[i].Part_start)
 
@@ -190,8 +206,9 @@ func grafica_disco(ubicacion string,path string,extencion string){
 
 									if (porcentaje_real != 0){
 										if ( aux.Part_status != '1'){
+											nam:=GoString(aux.Part_name[:])
 											cadena+=" <td height=\"140\"> EBR </td>\n"
-											cadena+=" <td height=\"140\">LOGICA<br/>"+strconv.FormatInt(porcentaje_real,10)+"%"+"</td>\n"
+											cadena+=" <td height=\"140\">LOGICA <br/>"+nam+" <br/>"+strconv.FormatInt(porcentaje_real,10)+"%"+"</td>\n"
 										
 										}else{//espacion en disco no asignado
 											cadena+=" <td height=\"150\">LIBRE 1 <br/>"+strconv.FormatInt(porcentaje_real,10)+"%"+"</td>\n"
@@ -233,8 +250,9 @@ func grafica_disco(ubicacion string,path string,extencion string){
 
 									if (porcentaje_real != 0){
 										if ( aux.Part_status != '1'){
+											nam:=GoString(aux.Part_name[:])
 											cadena+=" <td height=\"140\"> EBR </td>\n"
-											cadena+=" <td height=\"140\">LOGICA<br/>"+strconv.FormatInt(porcentaje_real,10)+"%"+"</td>\n"
+											cadena+=" <td height=\"140\">LOGICA <br/>"+nam+" <br/>"+strconv.FormatInt(porcentaje_real,10)+"%"+"</td>\n"
 										
 										}else{//espacion en disco no asignado
 											cadena+=" <td height=\"150\">LIBRE 1 <br/>"+strconv.FormatInt(porcentaje_real,10)+"%"+"</td>\n"
@@ -328,8 +346,141 @@ func grafica_disco(ubicacion string,path string,extencion string){
 
 func grafica_mbr(ubicacion string,path string,extencion string){
 
-
 	var cadena string=""
+	err,masterb:=Leer_MBR(ubicacion)	
+
+	if err != nil {
+		fmt.Println(" Error: No se pudo leer el disco para graficar el MBR. ")
+	}else{
+
+		tamano:=masterb.Mbr_tamano
+
+		cadena+="digraph G{ \n"
+		cadena+="subgraph cluster{\n label=\"MBR\""
+		cadena+="\n tbl[shape=box,label=<\n"
+		cadena+="<table color=\"blue\"  border=\"0\" cellborder=\"1\" cellspacing=\"0\" width=\"300\"  height=\"200\" >\n"
+		cadena+="<tr>  <td width=\"150\"> <b>Nombre</b> </td> <td width=\"150\"> <b>Valor</b> </td>  </tr>\n"
+
+		cadena+="<tr>  <td><b>mbr_tamaño</b></td><td><font color='red'>"+strconv.FormatInt(tamano,10)+"</font></td>  </tr>\n"
+
+		fecha:=GoString(masterb.Mbr_fecha_creacion[:])
+		cadena+="<tr>  <td><b>mbr_fecha_creacion</b></td> <td><font color='red'>"+fecha+"</font></td>  </tr>\n"
+
+		cadena+="<tr>  <td><b>mbr_disk_signature</b></td> <td><font color='red'>"+strconv.FormatInt(masterb.Mbr_disk_signature,10)+"</font></td>  </tr>\n"
+
+		var i_extendida int=-1
+
+		for i:=0 ; i < 4 ; i++ {
+			
+			if ( (masterb.Mbr_partition[i].Part_start != -1) && ( masterb.Mbr_partition[i].Part_status != '1')){
+
+				if ( masterb.Mbr_partition[i].Part_type == 'e' ){
+					i_extendida=i
+				}
+				var status string
+				if ( masterb.Mbr_partition[i].Part_status == '0') {
+					status="0"
+				
+				}else if ( masterb.Mbr_partition[i].Part_status == '2') {
+					status="2"
+				}
+
+				cadena+="<tr>  <td><b>part_status_"+strconv.Itoa(i+1)+"</b></td> <td><font color='red'>"+status+"</font></td>  </tr>\n"
+				cadena+="<tr>  <td><b>part_type_"+strconv.Itoa(i+1)+"</b></td> <td><font color='red'>"+string(masterb.Mbr_partition[i].Part_type)+"</font></td>  </tr>\n"
+				cadena+="<tr>  <td><b>part_start_"+strconv.Itoa(i+1)+"</b></td> <td><font color='red'>"+strconv.FormatInt(masterb.Mbr_partition[i].Part_start,10)+"</font></td>  </tr>\n"
+				cadena+="<tr>  <td><b>part_start_"+strconv.Itoa(i+1)+"</b></td> <td><font color='red'>"+strconv.FormatInt(masterb.Mbr_partition[i].Part_size,10)+"</font></td>  </tr>\n"
+				name:=GoString(masterb.Mbr_partition[i].Part_name[:])
+				cadena+="<tr>  <td><b>part_start_"+strconv.Itoa(i+1)+"</b></td> <td><font color='red'>"+name+"</font></td>  </tr>\n"
+
+			}
+
+		}//final del for que recorre el disco
+
+				cadena+="</table>\n"
+				cadena+=" >]; \n } \n"
+
+		if ( i_extendida != -1){//para las extendidas
+
+			var indice_ebr int=1
+
+			err2,ebr:=Leer_EBR(ubicacion,masterb.Mbr_partition[i_extendida].Part_start)
+
+			if ( err2 != nil){
+				fmt.Println(" Error: No se pudo leer el EBR para mostrar el reporte del MBR.")
+			}else{
+
+
+				var aux estructuras.EbrStr
+				aux=ebr
+						
+				var status2 string
+
+				for ( aux.Part_next != -1 ) {
+
+					if ( aux.Part_status != '1' ) {
+
+						cadena+="subgraph cluster_"+strconv.Itoa(indice_ebr)+"{\n label=\"EBR_"+strconv.Itoa(indice_ebr)+"\"\n"
+						cadena+="\ntbl_"+strconv.Itoa(indice_ebr)+"[shape=box, label=<\n "
+						cadena+="<table color=\"blue\" border=\"0\" cellborder=\"1\" cellspacing=\"0\"  width=\"300\" height=\"160\" >\n "
+						cadena+="<tr>  <td width=\"150\"><b>Nombre</b></td> <td width=\"150\"><b>Valor</b></td>  </tr>\n"
+					
+						if ( aux.Part_status == '0' ){
+							status2="0"
+						}else if ( aux.Part_status == '2') {
+							status2="2"
+						}
+
+						cadena+="<tr>  <td><b>part_status_1</b></td> <td><font color='red'>"+status2+"</font></td>  </tr>\n"
+						cadena+="<tr>  <td><b>part_start_1</b></td> <td><font color='red'>"+strconv.FormatInt(aux.Part_start,10)+"</font></td>  </tr>\n"
+						cadena+="<tr>  <td><b>part_size_1</b></td> <td><font color='red'>"+strconv.FormatInt(aux.Part_size,10)+"</font></td>  </tr>\n"
+						cadena+="<tr>  <td><b>part_next_1</b></td> <td><font color='red'>"+strconv.FormatInt(aux.Part_next,10)+"</font></td>  </tr>\n"
+						name:=GoString(aux.Part_name[:])
+						cadena+="<tr>  <td><b>part_name_1</b></td> <td><font color='red'>"+name+"</font></td>  </tr>\n"
+
+						cadena+="</table>\n"
+						cadena+=">];\n}\n"
+
+						indice_ebr++
+					}
+
+					if ( aux.Part_next == -1){
+						break
+					}
+			
+					err2,aux=Leer_EBR(ubicacion,aux.Part_next)
+				
+				}//final del for para recorrer las logicas
+				
+
+
+			} 
+
+		
+		}//fial del if para las extendidas
+
+
+					cadena+="\n } \n"
+
+					crearArchivo("/home/graficas/mbr.dot")
+					escribeArchivo("/home/graficas/mbr.dot",cadena)
+
+					_,err:= exec.Command("dot","/home/graficas/mbr.dot","-o","/home/graficas/mbr.png","-Tpng").Output()
+					if (err!=nil){ fmt.Println(" error con el comando1 para graficar mbr")}
+
+					_,err2:= exec.Command("xdg-open","/home/graficas/mbr.png").Output()
+					if (err2!=nil){ fmt.Println(" error con el comando2 para graficar mbr")}
+
+					fmt.Println("Mensaje: Se genero el repoorte del disco correctamente. ")
+
+
+	}//final del else principal
+	 
+}//final del metodo
+
+
+
+/*
+var cadena string=""
 
 	cadena+="digraph G {\n"
 
@@ -345,6 +496,5 @@ func grafica_mbr(ubicacion string,path string,extencion string){
 
 	_,err2:= exec.Command("xdg-open","/home/graficas/uno.png").Output()
 	if (err2!=nil){ fmt.Println(" error con el comando2")}
-
-}
-
+	
+	*/
