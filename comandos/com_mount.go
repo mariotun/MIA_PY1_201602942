@@ -13,6 +13,11 @@ import(
 func MOUNT(path string, name string)  {
 	fmt.Println("Dentro de la funcion mount")
 
+	if ( path=="" && name=="" ){
+		fmt.Println("----------Lista de particiones montadas----------")
+		Lista.Mostrar()
+	}else{
+
 	err,masterb:=Leer_MBR(path)
 	
 	 indicep:=buscar_particion_e(path,name)
@@ -88,7 +93,7 @@ func MOUNT(path string, name string)  {
 
 
 
-
+	}
 
 
 }

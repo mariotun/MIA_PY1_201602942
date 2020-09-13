@@ -2063,6 +2063,7 @@ yyrule31: // {identifier}
 				return l.char(identificador)
 			} else if strings.HasPrefix(string(l.TokenBytes(nil)), "vd") == true {
 				Parametros.Set_IDGrap(string(l.TokenBytes(nil)))
+				Parametros.Set_unmount(string(l.TokenBytes(nil)))
 				return l.char(identificador)
 			} else {
 				Parametros.Set_Namefd(string(l.TokenBytes(nil)))

@@ -160,16 +160,14 @@ func ElegirComando(entrada string){
 		if strings.HasPrefix(npath,"\"")==true{
 			npath=npath[1:len(npath)-1]
 		}
-
+		
 		MOUNT(npath,nnamefd)
 		
 		lexico.Parametros.Limpiar()
 
 	}else if ncomando=="unmount"{
-
-
-
-		UNMOUNT()
+		par:=lexico.Parametros.Get_unmount()
+		UNMOUNT(par)
 		lexico.Parametros.Limpiar()
 
 	}else if ncomando=="rep"{

@@ -21,7 +21,7 @@ import(
 
 )
 
- var nrandom int64=10
+ var nrandom int64=0
  //var nsize int64=0
 
 func MKDISK(size int64,path string,name string,unit string){

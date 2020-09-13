@@ -60,10 +60,15 @@ func (L *ListaSimple) Insertar (datos *NodoParticiones){
 func (L *ListaSimple) Mostrar(){
 
 	actual:=L.first
+	if (actual !=nil){
 
 	for actual!=nil{
-		fmt.Print("[",actual.path,",",actual.num,",",actual.letra,",",actual.nombre,"]-->")
+		fmt.Print("[","path:",actual.path," , ","Numero:",actual.num," , ","Letra:",actual.letra," , ","Nombre:",actual.nombre,"]\n")
 		actual=actual.next
+	}
+
+	}else{
+		fmt.Println(" Error: No hay particiones montadas aun.")
 	}
 
 }
@@ -133,6 +138,10 @@ func (L *ListaSimple) BuscarNodo(path string,nombre string) bool{
 func (L *ListaSimple) EliminarNodo(id string) int{
 	aux:=L.first
 
+	if ( aux == nil){
+		fmt.Println(" Error: L de particiones mantada vacia. ")
+	}else{
+
 	temp_id:="vd"
 	temp_id += string(aux.letra) + strconv.Itoa(aux.num)
 
@@ -156,6 +165,10 @@ func (L *ListaSimple) EliminarNodo(id string) int{
 			aux=aux.next
 		}
 	}
+
+
+	}
+
 	return 0
 }
 
