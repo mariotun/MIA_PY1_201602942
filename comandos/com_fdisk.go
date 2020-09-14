@@ -794,7 +794,7 @@ func Eliminar_Particion(path string,name string,delete string){
 	err,masterb:=Leer_MBR(path)
 
 	if ( err != nil) {
-		fmt.Println(" Error: NO se pudo leer el MBR (eliminar_particion)")
+		fmt.Println(" Error: NO se pudo leer el MBR (eliminar_particion): ",err)
 	}else{
 
 		mount:=Lista.BuscarNodo(path,name)
