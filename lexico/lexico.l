@@ -83,6 +83,7 @@ const (
 	tipo
 	deletee
 	add
+	addn
 	fit
 
 	rmdisk
@@ -167,6 +168,8 @@ func str(r rune) string {
 		return "deletee"
 	case add:
 		return "add"
+	case addn:
+		return "addn"
 	case fit:
 		return "fit"
 
@@ -279,7 +282,8 @@ direccomi		"\""+[^\n]+"\""
 comentario		"#"[^\n]*			 
 letter		    [_a-zA-Z]	
 tipo			{"e"|"p"|"l"}
-add  			"add->"+{int}
+add  			"add->"+{int} 
+addn			"add->"+{negativo}
 unicodeDigit	\x81
 unicodeLetter	\x80
 
@@ -329,6 +333,7 @@ fit				{ return l.char(fit) }
 {comentario}	return l.char(comentario)
 
 {add}			{ Parametros.Set_Add(string(l.TokenBytes(nil))); return l.char(add) }
+{addn}			{ Parametros.Set_Add(string(l.TokenBytes(nil))); return l.char(addn) }
 
 {identifier}	{ if (string(l.TokenBytes(nil))=="bf"||string(l.TokenBytes(nil))=="ff"||string(l.TokenBytes(nil))=="wf"){
 					Parametros.Set_Fit(string(l.TokenBytes(nil)))

@@ -8,7 +8,7 @@ import(
 	//"io/ioutil"
 	"encoding/binary"
 	
-	//"bytes"
+	"bytes"
 	"bufio"
 //	"log"
 	//"unsafe"
@@ -791,8 +791,230 @@ func Agregar_Quitar_Particiones(path string,name string,addn string,unit string)
 
 func Eliminar_Particion(path string,name string,delete string){
 
+	err,masterb:=Leer_MBR(path)
+
+	if ( err != nil) {
+		fmt.Println(" Error: NO se pudo leer el MBR (eliminar_particion)")
+	}else{
+
+		mount:=Lista.BuscarNodo(path,name)
+
+		if ( !mount){
+
+			var index int=-1
+			var index_e int=-1
+			var fextendida bool=false
+			var buff byte='0'
+			var namen [16]byte
+			copy(namen[:],name)
+
+			for i := 0 ; i < 4 ; i++ {
+				if ( masterb.Mbr_partition[i].Part_name == namen ){
+					index = i;
+					if (masterb.Mbr_partition[i].Part_type == 'e'){
+						fextendida=true
+						break
+					}
+
+				}else if (masterb.Mbr_partition[i].Part_type == 'e'){
+					index_e = i
+				}
+			}
+
+			if ( index != -1){
+
+				if ( !fextendida ){//primaria
+					if ( delete == "fast"){
+
+						var namen [16]byte
+						copy(namen[:],"")
+
+						masterb.Mbr_partition[index].Part_status = '1';
+						masterb.Mbr_partition[index].Part_name=namen
+
+						Escribir_MBR(path,masterb)
+						fmt.Println(" Mensaje: Particion primaria eliminada con exito.")
+					
+
+					}else{//full
+						
+						var namen [16]byte
+						copy(namen[:],"")
+
+						masterb.Mbr_partition[index].Part_status = '1';
+						masterb.Mbr_partition[index].Part_name=namen
+						Escribir_MBR(path,masterb)
+
+
+						archivo, err := os.OpenFile(path,os.O_RDWR,0777)
+						//defer archivo.Close()
+						if err != nil { 
+							fmt.Println(" Error al abrir el archivo para delete=full. ")
+							archivo.Close()
+							//break			
+							//log.Fatal(err) 
+						}else{
+						archivo.Seek(masterb.Mbr_partition[index].Part_start,0)
+						var binario bytes.Buffer
+						binary.Write(&binario,binary.BigEndian,&buff)
+						Escribir_Bytes(archivo,binario.Bytes())
+						archivo.Close()
+
+						}
+						fmt.Println(" Mensaje: Particion primaria eliminada con exito.")
+						
+					}
+				}else{//extendida
+					if ( delete == "fast" ){
+
+						var namen [16]byte
+						copy(namen[:],"")
+
+						masterb.Mbr_partition[index].Part_status = '1'
+						masterb.Mbr_partition[index].Part_name = namen
+
+						Escribir_MBR(path,masterb)
+						fmt.Println(" Mensaje: Particion extendida eliminada con exito.")
+						
+					}else{//full
+
+						var namen [16]byte
+						copy(namen[:],"")
+
+						masterb.Mbr_partition[index].Part_status = '1';
+						masterb.Mbr_partition[index].Part_name=namen
+						Escribir_MBR(path,masterb)
+
+
+						archivo, err := os.OpenFile(path,os.O_RDWR,0777)
+						//defer archivo.Close()
+						if err != nil { 
+							fmt.Println(" Error al abrir el archivo para delete=full. ")
+							archivo.Close()
+							//break			
+							//log.Fatal(err) 
+						}else{
+						archivo.Seek(masterb.Mbr_partition[index].Part_start,0)
+						var binario bytes.Buffer
+						binary.Write(&binario,binary.BigEndian,&buff)
+						Escribir_Bytes(archivo,binario.Bytes())
+						
+						archivo.Seek((masterb.Mbr_partition[index].Part_start + masterb.Mbr_partition[index].Part_size)-1,0)
+						var binario2 bytes.Buffer
+						binary.Write(&binario2,binary.BigEndian,&buff)
+						Escribir_Bytes(archivo,binario2.Bytes())
+						
+						archivo.Close()
+
+						}
+						fmt.Println(" Mensaje: Particion extendida eliminada(full) con exito.")
+
+					}
+				}
+
+			}else{//particion logica
+
+				if ( index_e != -1){
+					flag:=false
+					err,ebr:=Leer_EBR(path,masterb.Mbr_partition[index_e].Part_start)
+
+					if ( err != nil){
+						fmt.Println(" Error: No se pudo leer el EBR. ")
+					}else{
+
+						var aux estructuras.EbrStr
+						aux=ebr
+
+						if ( ebr.Part_size != 0 ){
+
+							var namee2 [16]byte
+							copy(namee2[:],name)
+
+							//var aux estructuras.EbrStr
+							//aux=ebr
+
+							for ( aux.Part_next != -1 ) {
+
+								if (aux.Part_name == namee2 && aux.Part_status != '1' ){
+									//archivo2.Close()
+									flag=true
+									break
+								}
+								err,aux=Leer_EBR(path,aux.Part_next)
+							}
+
+							if ( aux.Part_name==namee2 && aux.Part_status != '1' ){
+								flag=true
+							}
+
+
+						}
+
+						if ( flag ){
+
+							if (delete == "fast"){
+
+								var namen [16]byte
+								copy(namen[:],"")
+
+								aux.Part_status = '1'
+								aux.Part_name=namen
+
+								Escribir_EBR(path,aux)
+								fmt.Println(" Mensaje: Particion logica eliminada con exito.")
+								
+							}else{//full
+
+								var namen [16]byte
+								copy(namen[:],"")
+
+								aux.Part_status = '1'
+								aux.Part_name=namen
+								Escribir_EBR(path,aux)
+
+								archivo, err := os.OpenFile(path,os.O_RDWR,0777)
+								//defer archivo.Close()
+								if err != nil { 
+									fmt.Println(" Error al abrir el archivo para delete logica=full. ")
+									archivo.Close()
+								}else{
+								archivo.Seek(aux.Part_start,0)
+								var binario bytes.Buffer
+								binary.Write(&binario,binary.BigEndian,&buff)
+								Escribir_Bytes(archivo,binario.Bytes())
+
+								archivo.Seek((aux.Part_start + aux.Part_size)-1,0)
+								var binario2 bytes.Buffer
+								binary.Write(&binario2,binary.BigEndian,&buff)
+								Escribir_Bytes(archivo,binario2.Bytes())
+								}
+
+								archivo.Close()
+
+							}
+
+
+						}else{
+							fmt.Println(" ERROR: no se encuentra la particion a eliminar. ")
+						}
+
+					}//else
+
+				}else{
+					fmt.Println(" Error: NO se encontro la particion a eliminar. ")
+				}
+			}
+
+
+
+		}else{
+			fmt.Println(" Error: Se tiene que desmontar la particion para poder eliminarlo. ")
+		}
+	}
+
 
 }
+
 
 func ParticionExiste(path string, name string) bool{
 
@@ -837,14 +1059,14 @@ func ParticionExiste(path string, name string) bool{
 
 				for ( aux.Part_next != -1 ) {
 
-					if(aux.Part_name == namee2){
+					if (aux.Part_name == namee2){
 						//archivo2.Close()
 						return true
 					}
 					err2,aux=Leer_EBR(path,aux.Part_next)
 				}
 
-				if(aux.Part_name==namee2){
+				if (aux.Part_name==namee2){
 					return true
 				}
 				
